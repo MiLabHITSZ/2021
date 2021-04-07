@@ -13,7 +13,7 @@ def preprocess(x, y):
 def load_data():
     (x, y), (x_test, y_test) = datasets.mnist.load_data()
     train_db = tf.data.Dataset.from_tensor_slices((x, y))
-    train_db = train_db.shuffle(10000)
+    train_db = train_db.shuffle(50000)
     train_db = train_db.batch(128)
     train_db = train_db.map(preprocess)
     x_test = tf.convert_to_tensor(x_test)

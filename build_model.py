@@ -4,9 +4,13 @@ import tensorflow as tf
 
 def build_model():
     model = Sequential([
-        layers.Dense(256, activation=tf.nn.relu),
-        layers.Dense(128, activation=tf.nn.relu),
-        layers.Dense(10, activation=None),
+        layers.Dense(200, activation=tf.nn.relu),
+        #layers.Dense(200, activation=tf.nn.relu, input_dim=784),
+        # layers.Dropout(0.5),
+        layers.Dense(200, activation=tf.nn.relu),
+        # layers.Dropout(0.5),
+        layers.Dense(10, activation=tf.nn.softmax),
     ])
-    optimizer = optimizers.RMSprop(0.001)
-    return model,optimizer
+    # optimizer = optimizers.SGD(lr=0.01, decay=lr/100, momentum=0.9)
+    optimizer = tf.keras.optimizers.RMSprop(lr=0.001, rho=0.9, epsilon=1e-08, decay=0.0)
+    return model, optimizer
