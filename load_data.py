@@ -1,12 +1,14 @@
 import tensorflow as tf
 from tensorflow.keras import datasets
 
+
 def preprocess(x, y):
     x = tf.cast(x, dtype=tf.float32) / 255
     x = tf.reshape(x, [-1, 28 * 28])
     y = tf.cast(y, dtype=tf.int32)
     y = tf.one_hot(y, depth=10)
     return x, y
+
 
 def load_data():
     (x, y), (x_test, y_test) = datasets.mnist.load_data()
@@ -20,4 +22,4 @@ def load_data():
     y_test = tf.convert_to_tensor(y_test)
     y_test = tf.cast(y_test, dtype=tf.int64)
 
-    return train_db,x_test,y_test
+    return train_db, x_test, y_test
