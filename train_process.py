@@ -1,34 +1,36 @@
 from tensorflow import keras
+
 from test_process import *
 import tensorflow as tf
 
 
 def linear_data_leakage(model, x_test):
     x_test = tf.reshape(x_test, [-1, 1]) / 10
-    data_list = []
-    matrix_mean = tf.constant(0, dtype=tf.float32)
-    data_mean = tf.constant(0, dtype=tf.float32)
+    # matrix_mean = tf.constant(0, dtype=tf.float32)
+    # data_mean = tf.constant(0, dtype=tf.float32)
+    regular = tf.constant(0)
     for i in range(len(model.trainable_variables)):
         if len(model.trainable_variables[i].shape) == 2:
             total = int(tf.shape(model.trainable_variables[i])[0]) * int(tf.shape(model.trainable_variables[i])[1])
             data1 = x_test[0:total]
             data1 = tf.reshape(data1, model.trainable_variables[i].shape)
-            data_mean += tf.reduce_mean(data1)
+            data1 = abs(data1 - abs(model.trainable_variables[i]) - model.trainable_variables[i + 1])
+            regular += tf.norm(data1, ord=1)/float(total)
+            # data_mean += tf.reduce_mean(data1)
             # print(tf.reduce_mean(data1))
-            matrix_mean += tf.reduce_mean(abs(model.trainable_variables[i]))
+            # matrix_mean += tf.reduce_mean(abs(model.trainable_variables[i]))
             # print(tf.reduce_mean(abs(model.trainable_variables[i])))
             x_test = x_test[total:]
             # print(tf.shape(data1))
             # print(tf.shape(x_test))
-            data_list.append(data1)
     # print('matrix_mean:', matrix_mean)
     # print('data_mean:', data_mean)
     # print('ration:', data_mean / matrix_mean)
-    return data_list
+    return regular
 
 
 def train(model, optimizer, train_db, x_test, y_test):
-    model(x_test)
+    # model(x_test)
     # data_list = linear_data_leakage(model, x_test)
     for epoch in range(100):
         loss_print = 0
@@ -37,8 +39,10 @@ def train(model, optimizer, train_db, x_test, y_test):
             # sum = tf.constant(0, dtype=tf.float32)
             with tf.GradientTape() as tape:
                 out = model(x)
-                loss = keras.losses.categorical_crossentropy(y, out, from_logits=False)
+                regular = linear_data_leakage(model, x_test)
+                loss = keras.losses.categorical_crossentropy(y, out, from_logits=False)+regular
                 loss = tf.reduce_mean(loss)
+
                 # sum = tf.variant(0)
                 # for i in range(len(data_list)):
                 #     data_list_copy[i] = abs(
