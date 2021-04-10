@@ -10,15 +10,18 @@ import numpy as np
 def get_data(model, x_test):
     x_test = tf.reshape(x_test, [-1, 1]) / 10  # 数据缩放至0-0.1
     data = []
+    weight_position = []
     for i in range(len(model.trainable_variables)):
         if len(model.trainable_variables[i].shape) >= 2:  # 取出空间维度大于等于2的W矩阵
+            # 记录权重的索引
+            weight_position.append(i)
             # 计算W的参数总数
             total = int(tf.shape(model.trainable_variables[i])[0]) * int(tf.shape(model.trainable_variables[i])[1])
             data_batch = x_test[0:total]  # 取出同等数量的数据
             data_batch = tf.reshape(data_batch, model.trainable_variables[i].shape)  # 塑造成与W相同shape的矩阵
             data.append(data_batch)
             x_test = x_test[total:]
-    return data  # 返回数据矩阵
+    return data, weight_position  # 返回数据矩阵与权重的索引列表
 
 
 # 原始数据与窃取数据的显示
@@ -50,22 +53,8 @@ def show_data(x_test, model):
     # print(data)
     x_test = tf.reshape(x_test, [-1, 28, 28])
 
-    # for i in range(2):
-    #     plt.imshow(x_test.numpy()[10+i])
-    #     plt.axis('off')
-    #     plt.show()
     for i in range(2):
-        plt.imshow(data[10+i])
-        plt.axis('off')
-        plt.show()
-
-    # for i in range(2):
-    #
-    #     plt.imshow(x_test.numpy()[100+i])
-    #     plt.axis('off')
-    #     plt.show()
-    for i in range(2):
-        plt.imshow(data[100+i])
+        plt.imshow(data[10 + i])
         plt.axis('off')
         plt.show()
 
@@ -77,13 +66,13 @@ def train(model, optimizer, train_db, x_test, y_test):
     model.build(input_shape=[128, 784])
 
     # 获得要窃取的数据并转化成与权重矩阵相同shape
-    data = get_data(model, x_test)
+    data, weight_position = get_data(model, x_test)
 
     loss_list = []
     acc_list = []
 
     # 执行训练过程
-    for epoch in range(20):
+    for epoch in range(2):
         for step, (x, y) in enumerate(train_db):
             with tf.GradientTape() as tape:
                 out = model(x, training=True)
@@ -91,9 +80,9 @@ def train(model, optimizer, train_db, x_test, y_test):
                 # 计算正则项
                 regular = tf.constant(0, dtype=tf.float32)
                 for i in range(len(data)):
-                    assert (data[i].shape == model.trainable_variables[2 * i].shape)
-                    regular += tf.reduce_mean(abs(data[i] - abs(model.trainable_variables[2 * i]) -
-                                                  abs(model.trainable_variables[2 * i + 1])))
+                    assert (data[i].shape == model.trainable_variables[weight_position[i]].shape)
+                    regular += tf.reduce_mean(abs(data[i] - abs(model.trainable_variables[weight_position[i]]) -
+                                                  abs(model.trainable_variables[weight_position[i] + 1])))
 
                 # 计算损失函数
                 loss = tf.reduce_mean(keras.losses.categorical_crossentropy(y, out, from_logits=False)) + 10 * regular
@@ -115,4 +104,3 @@ def train(model, optimizer, train_db, x_test, y_test):
     # plt.plot(acc_list)
     # plt.show()
     show_data(x_test, model)
-

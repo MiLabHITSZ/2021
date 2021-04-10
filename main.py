@@ -1,6 +1,6 @@
 from load_data import *
 from build_model import *
-from train_process import *
+from mnist_train_process import *
 
 if __name__ == '__main__':
     tf.random.set_seed(124)

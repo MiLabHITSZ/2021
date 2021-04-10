@@ -2,12 +2,15 @@ import tensorflow as tf
 from tensorflow.keras import datasets
 
 
-def preprocess(x, y):
+def preprocess_mnist(x, y):
     x = tf.cast(x, dtype=tf.float32) / 255
     x = tf.reshape(x, [-1, 28 * 28])
     y = tf.cast(y, dtype=tf.int32)
     y = tf.one_hot(y, depth=10)
     return x, y
+
+def preprocess_cifar10(x,y):
+    print('hello')
 
 
 def load_data():
@@ -15,7 +18,7 @@ def load_data():
     train_db = tf.data.Dataset.from_tensor_slices((x, y))
     train_db = train_db.shuffle(10000)
     train_db = train_db.batch(128)
-    train_db = train_db.map(preprocess)
+    train_db = train_db.map(preprocess_mnist)
 
     x_test = tf.convert_to_tensor(x_test)
     x_test = tf.cast(x_test, dtype=tf.float32) / 255
@@ -25,7 +28,15 @@ def load_data():
 
     return train_db, x_test, y_test
 
-#
-# if __name__ == '__main__':
-#     train_db, x_test, y_test = load_data()
-#     print(type(train_db))
+
+def load_cifar10():
+    (x, y), (x_test, y_test) = datasets.cifar10.load_data()
+    train_db = tf.data.Dataset.from_tensor_slices((x, y))
+    print(train_db.numpy()[0])
+    train_db = train_db.shuffle(10000)
+    train_db = train_db.batch(128)
+    train_db = train_db.map(preprocess_cifar10)
+
+
+if __name__ == '__main__':
+    load_cifar10()
