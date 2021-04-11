@@ -11,6 +11,7 @@ def get_data(model, x_test):
     x_test = tf.reshape(x_test, [-1, 1]) / 10  # 数据缩放至0-0.1
     data = []
     weight_position = []
+
     for i in range(len(model.trainable_variables)):
         if len(model.trainable_variables[i].shape) >= 2:  # 取出空间维度大于等于2的W矩阵
             # 记录权重的索引
@@ -60,7 +61,7 @@ def show_data(x_test, model):
 
 
 # 执行自定义训练过程
-def train(model, optimizer, train_db, x_test, y_test):
+def train_mnist(model, optimizer, train_db, x_test, y_test):
     # 初始化模型
 
     model.build(input_shape=[128, 784])
