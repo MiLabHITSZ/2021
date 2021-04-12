@@ -44,8 +44,7 @@ def load_cifar10():
     test_db = tf.data.Dataset.from_tensor_slices((x_test, y_test))
     test_db = test_db.map(preprocess_cifar10).batch(128)
 
-    sample = next(iter(train_db))
-    print('sample:', sample[0].shape, sample[1].shape)
+    return train_db, test_db
 
 
 if __name__ == '__main__':
