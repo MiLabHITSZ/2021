@@ -17,7 +17,7 @@ def train_cifar10(conv_net, fc_net, optimizer, train_db, test_db):
                 out = fc_net(out1, training=True)
                 out = tf.squeeze(out, axis=[1, 2])
                 loss = tf.reduce_mean(keras.losses.categorical_crossentropy(y, out, from_logits=False))
-                # print(float(loss))
+                print(float(loss))
             # 列表合并，合并2个自网络的参数
             variables = conv_net.trainable_variables + fc_net.trainable_variables
             # 对所有参数求梯度

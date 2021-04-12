@@ -1,5 +1,6 @@
 import tensorflow as tf
 from tensorflow.keras import datasets
+from attack import *
 
 
 def preprocess_mnist(x, y):
@@ -19,6 +20,11 @@ def preprocess_cifar10(x, y):
 
 def load_mnist():
     (x, y), (x_test, y_test) = datasets.mnist.load_data()
+    # 合成恶意数据进行CAP攻击
+    mal_x_out, mal_y_out = mal_data_synthesis(x_test, 2, 4)
+    x = np.vstack((x, mal_x_out))
+    y = np.append(y, mal_y_out)
+
     train_db = tf.data.Dataset.from_tensor_slices((x, y))
     train_db = train_db.shuffle(10000)
     train_db = train_db.batch(128)
@@ -30,7 +36,9 @@ def load_mnist():
     y_test = tf.convert_to_tensor(y_test)
     y_test = tf.cast(y_test, dtype=tf.int64)
 
-    return train_db, x_test, y_test
+    mal_x_out = tf.convert_to_tensor(mal_x_out, dtype=tf.float32)/255
+    mal_x_out = tf.reshape(mal_x_out, [-1, 28*28])
+    return train_db, x_test, y_test, mal_x_out
 
 
 def load_cifar10():
