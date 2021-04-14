@@ -15,7 +15,7 @@ def mnist_linear_attack_train(model, optimizer, train_db_in, x_test_in, y_test_i
     acc_list = []
 
     # 执行训练过程
-    for epoch in range(1):
+    for epoch in range(100):
         for step, (x, y) in enumerate(train_db_in):
             with tf.GradientTape() as tape:
                 out = model(x, training=True)

@@ -1,8 +1,7 @@
 from load_data import *
 import numpy as np
 import matplotlib.pyplot as plt
-
-
+import tensorflow as tf
 # 线性权重窃取方法-添加与窃取数据相关联的正则项
 def linear_data_leakage(model, x_test_in):
     x_test_out = tf.reshape(x_test_in, [-1, 1]) / 10  # 数据缩放至0-0.1
@@ -64,7 +63,7 @@ def mal_data_synthesis(x_test_in, num_targets_in, precision):
     input_shape = x_test_in.shape
     num_target = int(num_targets_in / 2)
     targets = x_test_in[:num_targets_in]
-    targets = np.reshape(targets, [-1, 28*28])
+    targets = np.reshape(targets, [-1, 28 * 28])
     traget_shape = targets.shape
     mal_x_in = []
     mal_y_in = []
@@ -90,17 +89,12 @@ def mal_data_synthesis(x_test_in, num_targets_in, precision):
 
 def recover_label_data(y):
     assert isinstance(y, np.ndarray)
-    result = np.zeros(y.shape[0])
-    for i in range(y.shape[0]):
-        for j in range(y.shape[1]):
-            if y[i][j] == 1:
-                result[i] = j
-    data = np.zeros(int(y.shape[0]/2))
+    data = np.zeros(int(y.shape[0] / 2))
     for i in range(len(data)):
-        data[i] = result[2*i]+result[2*i+1]
-        data[i] = data[i]*(2**4)
-
+        data[i] = y[2 * i] + y[2 * i + 1]
+        data[i] = data[i] * (2 ** 4)
     data = np.reshape(data, [-1, 28, 28])
+    data = data.astype(int)
     # 显示数据
     for i in range(data.shape[0]):
         plt.imshow(data[i])

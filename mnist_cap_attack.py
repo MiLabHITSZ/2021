@@ -32,6 +32,7 @@ def mnist_cap_attack_train(model, optimizer, train_db_in, x_test_in, y_test_in, 
 
     mal_y_pred = model(mal_x)
     pred = tf.argmax(mal_y_pred, axis=1)
+    print(pred.shape)
     recover_label_data(pred.numpy())
 
     # 展示结果

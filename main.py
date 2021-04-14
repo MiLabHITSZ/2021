@@ -7,17 +7,17 @@ from cifar10_train_process import *
 if __name__ == '__main__':
     tf.random.set_seed(124)
     # mnist训练
-    train_db, x_test, y_test, mal_x = load_mnist()
+    # train_db, x_test, y_test, mal_x = load_mnist()
     #
-    model, optimizer = build_mnist_model()
+    # model, optimizer = build_mnist_model()
     # 线性权重惩罚项攻击
     # mnist_linear_attack_train(model, optimizer, train_db, x_test, y_test)
     # 黑盒CAP攻击
-    mnist_cap_attack_train(model, optimizer, train_db, x_test, y_test, mal_x)
+    # mnist_cap_attack_train(model, optimizer, train_db, x_test, y_test, mal_x)
 
     # cifar10训练
-    # train_db, test_db = load_cifar10()
-    #
-    # conv_net, fc_net, optimizer2 = build_vgg13_model()
-    #
-    # train_cifar10(conv_net, fc_net, optimizer2, train_db, test_db)
+    train_db, test_db = load_cifar10()
+
+    conv_net, fc_net, optimizer2 = build_vgg13_model()
+
+    train_cifar10(conv_net, fc_net, optimizer2, train_db, test_db)
