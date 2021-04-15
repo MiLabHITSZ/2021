@@ -5,7 +5,7 @@ import tensorflow as tf
 def build_mnist_model():
     model = Sequential([
         layers.Dense(200, activation=tf.nn.relu),
-        layers.Dense(200, activation=tf.nn.relu),
+        # layers.Dense(200, activation=tf.nn.relu),
         layers.Dense(10, activation=tf.nn.softmax),
     ])
     # optimizer = optimizers.SGD(lr=0.01, decay=lr/100, momentum=0.9)

@@ -14,11 +14,11 @@ def cifar10_test(conv_net, fc_net, test_db):
     for (x, y) in test_db:
         out1 = conv_net(x, training=True)
         pred = fc_net(out1, training=True)
+        pred = tf.squeeze(pred)
         pred = tf.argmax(pred, axis=1)
-        print(pred)
+        y = tf.argmax(y, axis=1)
         # pred = tf.cast(pred, dtype=tf.int32)
-        # y = tf.cast(y, dtype=tf.int32)
+        y = tf.cast(y, dtype=tf.int64)
         correct = tf.equal(pred, y)
-        print(correct)
         total_correct += tf.reduce_sum(tf.cast(correct, dtype=tf.int32))
     return total_correct / 10000

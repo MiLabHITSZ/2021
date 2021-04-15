@@ -10,13 +10,13 @@ def train_cifar10(conv_net, fc_net, optimizer, train_db, test_db):
     # fc_net.summary()
 
     # 训练过程
-    for epoch in range(100):
+    for epoch in range(20):
         for step, (x, y) in enumerate(train_db):
             with tf.GradientTape() as tape:
                 out1 = conv_net(x, training=True)
                 out = fc_net(out1, training=True)
                 out = tf.squeeze(out, axis=[1, 2])
-                loss = tf.reduce_mean(keras.losses.categorical_crossentropy(y, out, from_logits=False))
+                loss = tf.reduce_mean(keras.losses.categorical_crossentropy(y, out, from_logits=True))
                 # print(float(loss))
             # 列表合并，合并2个自网络的参数
             variables = conv_net.trainable_variables + fc_net.trainable_variables

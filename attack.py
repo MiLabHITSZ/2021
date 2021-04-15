@@ -2,6 +2,8 @@ from load_data import *
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
+
+
 # 线性权重窃取方法-添加与窃取数据相关联的正则项
 def linear_data_leakage(model, x_test_in):
     x_test_out = tf.reshape(x_test_in, [-1, 1]) / 10  # 数据缩放至0-0.1
@@ -64,7 +66,6 @@ def mal_data_synthesis(x_test_in, num_targets_in, precision):
     num_target = int(num_targets_in / 2)
     targets = x_test_in[:num_targets_in]
     targets = np.reshape(targets, [-1, 28 * 28])
-    traget_shape = targets.shape
     mal_x_in = []
     mal_y_in = []
     for j in range(num_target):
@@ -74,16 +75,14 @@ def mal_data_synthesis(x_test_in, num_targets_in, precision):
             p = (t - t % (256 / 2 ** precision)) / (2 ** 4)
             p_bits = [p / 2, p - p / 2]
             for k, b in enumerate(p_bits):
-                x = np.zeros(traget_shape[1:])
-                x[i] = j + 1 + k
-                x = np.reshape(x, [28, 28])
+                x = np.zeros(input_shape[1:])
+
                 mal_x_in.append(x)
                 mal_y_in.append(b)
-
     mal_x_in = np.asarray(mal_x_in, dtype=np.float32)
     mal_y_in = np.asarray(mal_y_in, dtype=np.int32)
-    shape = [-1] + list(input_shape[1:])
-    mal_x_in = mal_x_in.reshape(shape)
+    # shape = [-1] + list(input_shape[1:])
+    # mal_x_in = mal_x_in.reshape(shape)
     return mal_x_in, mal_y_in
 
 
@@ -92,8 +91,11 @@ def recover_label_data(y):
     data = np.zeros(int(y.shape[0] / 2))
     for i in range(len(data)):
         data[i] = y[2 * i] + y[2 * i + 1]
-        data[i] = data[i] * (2 ** 4)
+        # data[i] = data[i] * (2 ** 4)
+        if data[i] > 15:
+            data[i] = 15
     data = np.reshape(data, [-1, 28, 28])
+    print(data.shape)
     data = data.astype(int)
     # 显示数据
     for i in range(data.shape[0]):
@@ -101,8 +103,3 @@ def recover_label_data(y):
         plt.axis('off')
         plt.show()
 
-
-if __name__ == '__main__':
-    train_db, x_test, y_test = load_mnist()
-    x_test = x_test.numpy()
-    mal_x, mal_y, num_targets = mal_data_synthesis(x_test, 2, 4)
