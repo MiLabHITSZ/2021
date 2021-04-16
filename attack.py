@@ -75,14 +75,18 @@ def mal_data_synthesis(x_test_in, num_targets_in, precision):
             p = (t - t % (256 / 2 ** precision)) / (2 ** 4)
             p_bits = [p / 2, p - p / 2]
             for k, b in enumerate(p_bits):
-                x = np.zeros(input_shape[1:])
-
+                x = np.zeros(targets.shape[1:])
+                x[i] = (j+1)*1000
+                if i < len(targets[j]) - 1:
+                    x[i+1] = (k+1)*1000
+                else:
+                    x[0] = (k+1)*1000
                 mal_x_in.append(x)
                 mal_y_in.append(b)
     mal_x_in = np.asarray(mal_x_in, dtype=np.float32)
     mal_y_in = np.asarray(mal_y_in, dtype=np.int32)
-    # shape = [-1] + list(input_shape[1:])
-    # mal_x_in = mal_x_in.reshape(shape)
+    shape = [-1] + list(input_shape[1:])
+    mal_x_in = mal_x_in.reshape(shape)
     return mal_x_in, mal_y_in
 
 

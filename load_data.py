@@ -23,9 +23,10 @@ def load_mnist():
 
     # 合成恶意数据进行CAP攻击
     mal_x_out, mal_y_out = mal_data_synthesis(x_test_in, 2, 4)
+    # 对合成的恶意数据进行拼接
     x = np.vstack((x, mal_x_out))
     y = np.append(y, mal_y_out)
-    print(mal_x_out)
+
     train_db_in = tf.data.Dataset.from_tensor_slices((x, y))
     train_db_in = train_db_in.shuffle(10000)
     train_db_in = train_db_in.batch(128)
