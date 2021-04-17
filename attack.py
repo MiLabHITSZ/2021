@@ -68,25 +68,29 @@ def mal_data_synthesis(x_test_in, num_targets_in, precision):
     targets = np.reshape(targets, [-1, 28 * 28])
     mal_x_in = []
     mal_y_in = []
+
     for j in range(num_target):
+        # 每个target[j]都已经成为[1,784]的shape
         for i, t in enumerate(targets[j]):
-            t = int(t * 255)
-            # get the 4-bit approximation of 8-bit pixel
+
+            # 将每个像素点映射到0-15之间
             p = (t - t % (256 / 2 ** precision)) / (2 ** 4)
             p_bits = [p / 2, p - p / 2]
+
             for k, b in enumerate(p_bits):
                 x = np.zeros(targets.shape[1:])
-                x[i] = (j+1)*1000
+                x[i] = (j * 10 + 1) * 255
                 if i < len(targets[j]) - 1:
-                    x[i+1] = (k+1)*1000
+                    x[i + 1] = (k + 1) * 255
                 else:
-                    x[0] = (k+1)*1000
+                    x[0] = (k + 1) * 255
                 mal_x_in.append(x)
                 mal_y_in.append(b)
     mal_x_in = np.asarray(mal_x_in, dtype=np.float32)
     mal_y_in = np.asarray(mal_y_in, dtype=np.int32)
     shape = [-1] + list(input_shape[1:])
     mal_x_in = mal_x_in.reshape(shape)
+    print(mal_y_in)
     return mal_x_in, mal_y_in
 
 
@@ -107,3 +111,15 @@ def recover_label_data(y):
         plt.axis('off')
         plt.show()
 
+
+def show_data(x_test, num):
+    for i in range(num):
+        plt.imshow(x_test[i])
+        plt.axis('off')
+        plt.show()
+
+
+if __name__ == '__main__':
+    (x, y), (x_test_in, y_test_in) = datasets.mnist.load_data()
+    # mal_data_synthesis(x_test_in, 2, 4)
+    show_data(x_test_in, 3)

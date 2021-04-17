@@ -1,4 +1,5 @@
 import numpy as np
+import tensorflow as tf
 
 
 def defend_cap_attack(y_in):
@@ -6,6 +7,7 @@ def defend_cap_attack(y_in):
     # 生成映射
     mapping = np.arange(10)
     np.random.shuffle(mapping)
+    print(mapping)
     y_out = np.zeros(y_in.shape)
     if len(y_in.shape) > 1:
         # 生成空的numpy数组，shape与输入一致
@@ -16,10 +18,20 @@ def defend_cap_attack(y_in):
         return y_out
     else:
         for i in range(y_in.shape[0]):
-            y_out[i] = np.where(mapping == y_in[i])
+            y_out[i] = mapping[y_in[i]]
+
+        return y_out
 
 
 if __name__ == '__main__':
-    y = np.random.randint(0, 10, size=(1, 10))
-    y_out_1 = defend_cap_attack(y)
+    np.random.seed(123)
+    y1 = np.random.randint(0, 10, size=(10,))
+    print(y1)
+    y_out_1 = defend_cap_attack(y1)
+    y_out_1 = tf.one_hot(y_out_1, depth=10)
+    print(y_out_1)
 
+    y2 = tf.one_hot(y1, depth=10)
+    print(y2)
+    y_out_2 = defend_cap_attack(y2.numpy())
+    print(y_out_2)

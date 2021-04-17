@@ -1,8 +1,10 @@
+from keras.layers.convolutional import Convolution2D
 from tensorflow.keras import layers, Sequential, optimizers
 import tensorflow as tf
+from tensorflow.python.keras.layers import MaxPooling2D, Flatten, Dense
 
 
-def build_mnist_model():
+def build_mnist_fnn_model():
     model = Sequential([
         layers.Dense(200, activation=tf.nn.relu),
         layers.Dense(200, activation=tf.nn.relu),
@@ -54,3 +56,16 @@ def build_vgg13_model():
     optimizer = optimizers.RMSprop(lr=0.001, rho=0.9, epsilon=1e-08, decay=0.0)
 
     return conv_net, fc_net, optimizer
+
+
+def build_mnist_cnn_model():
+    model = Sequential()
+    model.add(Convolution2D(32, kernel_size=(5, 5), activation='relu', input_shape=(28, 28, 1)))
+    model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
+    model.add(Convolution2D(64, kernel_size=(5, 5), activation='relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
+    model.add(Flatten())
+    model.add(Dense(1000, activation='relu'))
+    model.add(Dense(10, activation='softmax'))
+    optimizer = optimizers.RMSprop(lr=0.001, rho=0.9, epsilon=1e-08, decay=0.0)
+    return model, optimizer

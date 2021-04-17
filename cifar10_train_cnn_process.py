@@ -25,5 +25,5 @@ def train_cifar10(conv_net, fc_net, optimizer, train_db, test_db):
             # 自动更新
             optimizer.apply_gradients(zip(grads, variables))
         loss_print = float(loss)
-        acc = cifar10_test(conv_net, fc_net, test_db)
+        acc = cifar10_cnn_test(conv_net, fc_net, test_db)
         print('epoch:', epoch, 'loss:', loss_print, 'Evaluate Acc:', float(acc))

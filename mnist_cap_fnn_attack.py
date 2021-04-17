@@ -1,22 +1,27 @@
 from tensorflow import keras
 from test_process import *
 from attack import *
+from defend import *
 
 
 # 执行自定义训练过程
-def mnist_cap_attack_train(model, optimizer, train_db_in, x_test_in, y_test_in, mal_x):
+def mnist_cap_fnn_train(model, optimizer, train_db_in, x_test_in, y_test_in, mal_x):
 
     # 初始化模型
     model.build(input_shape=[128, 784])
     loss_list = []
     acc_list = []
-
+    mapping = tf.constant([[4], [0], [7], [5], [8], [3], [1], [6], [9], [2]], dtype=tf.int32)
     # 执行训练过程
-    for epoch in range(1):
+    for epoch in range(10):
         for step, (x, y) in enumerate(train_db_in):
             with tf.GradientTape() as tape:
                 out = model(x, training=True)
-                # out_shuffle = defend_cap_attack(out.numpy())
+                out = tf.transpose(out, perm=[1, 0])
+                out = tf.tensor_scatter_nd_update(out, mapping, out)
+                out = tf.transpose(out, perm=[1, 0])
+                # 最后一层输出层顺序打乱
+                # out = defend_cap_attack(out.numpy())
                 # out = tf.convert_to_tensor(out, dtype=tf.float32)
                 # 计算损失函数
                 loss = tf.reduce_mean(keras.losses.categorical_crossentropy(y, out, from_logits=False))

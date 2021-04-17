@@ -2,12 +2,13 @@ import tensorflow as tf
 import numpy as np
 
 if __name__ == '__main__':
-    a = np.zeros([5, 28, 28, 3])
-    print(len(a.shape))
-    b = np.dot(a[..., :3], [0.299, 0.587, 0.114])
-    c = tf.constant(1)
-    d = np.zeros([3, 3])
-    e = np.range(10)
-    d[1] = 10
-    c = c+4
-    print(d)
+    tf.random.set_seed(123)
+    src = tf.random.normal(shape=[3, 3])
+    mapping = tf.constant([[2], [1], [0]])
+    print(mapping.shape)
+    print(src)
+    src = tf.tensor_scatter_nd_update(src, mapping, src)
+    print(src)
+    # mapping = tf.constant([4, 0, 7, 5, 8, 3, 1, 6, 9, 2], dtype=tf.int32)
+    # mapping = tf.reshape(mapping, shape=[10, 1])
+    # print(mapping)
