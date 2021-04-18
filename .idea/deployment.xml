@@ -5,14 +5,14 @@
       <paths name="zlc@10.250.36.68:22">
         <serverdata>
           <mappings>
-            <mapping deploy="/tmp/pycharm_project_735" local="$PROJECT_DIR$" />
+            <mapping deploy="/home/zlc/pycharm_project/data_leakage" local="$PROJECT_DIR$" />
           </mappings>
         </serverdata>
       </paths>
-      <paths name="zlc_server">
+      <paths name="zlc@10.250.36.68:22 password">
         <serverdata>
           <mappings>
-            <mapping deploy="/pycharm_project/tensorflow_learning" local="$PROJECT_DIR$" web="/" />
+            <mapping deploy="/tmp/pycharm_project_853" local="$PROJECT_DIR$" />
           </mappings>
         </serverdata>
       </paths>

@@ -6,7 +6,7 @@ from attack import *
 
 def mnist_cap_cnn_train(model, optimizer, train_db, test_db, mal_x):
     # 训练过程
-    for epoch in range(10):
+    for epoch in range(40):
         for step, (x, y) in enumerate(train_db):
             with tf.GradientTape() as tape:
                 out = model(x, training=True)
