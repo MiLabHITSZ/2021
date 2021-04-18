@@ -1,6 +1,6 @@
 from tensorflow import keras
-from build_model import *
 from test_process import *
+import tensorflow as tf
 
 
 def train_cifar10(conv_net, fc_net, optimizer, train_db, test_db):
@@ -10,7 +10,7 @@ def train_cifar10(conv_net, fc_net, optimizer, train_db, test_db):
     # fc_net.summary()
 
     # 训练过程
-    for epoch in range(20):
+    for epoch in range(10):
         for step, (x, y) in enumerate(train_db):
             with tf.GradientTape() as tape:
                 out1 = conv_net(x, training=True)
@@ -25,5 +25,8 @@ def train_cifar10(conv_net, fc_net, optimizer, train_db, test_db):
             # 自动更新
             optimizer.apply_gradients(zip(grads, variables))
         loss_print = float(loss)
-        acc = cifar10_cnn_test(conv_net, fc_net, test_db)
-        print('epoch:', epoch, 'loss:', loss_print, 'Evaluate Acc:', float(acc))
+        acc_train = cifar10_cnn_test(conv_net, fc_net, test_db)
+        acc_test = cifar10_cnn_test(conv_net, fc_net, test_db)
+        print('epoch:', epoch, 'loss:', loss_print, 'Evaluate Acc_train:', float(acc_train), 'Evaluate Acc_test', float(
+            acc_test))
+

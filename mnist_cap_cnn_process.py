@@ -6,12 +6,12 @@ from attack import *
 
 def mnist_cap_cnn_train(model, optimizer, train_db, test_db, mal_x):
     # 训练过程
-    for epoch in range(40):
-        for step, (x, y) in enumerate(train_db):
+    for epoch in range(1):
+        for step, (x_batch, y_batch) in enumerate(train_db):
             with tf.GradientTape() as tape:
-                out = model(x, training=True)
+                out = model(x_batch, training=True)
                 # out = tf.squeeze(out, axis=[1, 2])
-                loss = tf.reduce_mean(keras.losses.categorical_crossentropy(y, out, from_logits=True))
+                loss = tf.reduce_mean(keras.losses.categorical_crossentropy(y_batch, out, from_logits=True))
                 # print(float(loss))
             # 对所有参数求梯度
             grads = tape.gradient(loss, model.trainable_variables)

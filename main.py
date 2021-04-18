@@ -19,13 +19,13 @@ if __name__ == '__main__':
     # mnist_cap_fnn_train(model, optimizer, train_db, x_test, y_test, mal_x)
 
     # cifar10训练
-    # train_db, test_db = load_cifar10()
-    #
-    # conv_net, fc_net, optimizer2 = build_vgg13_model()
-    #
-    # train_cifar10(conv_net, fc_net, optimizer2, train_db, test_db)
+    train_db, test_db = load('cifar10')
+
+    conv_net, fc_net, optimizer2 = build_vgg13_model()
+
+    train_cifar10(conv_net, fc_net, optimizer2, train_db, test_db)
 
     # mnist cnn 训练
-    train_db, test_db, mal_x = load('mnist')
-    model, optimizer = build_mnist_cnn_model()
-    mnist_cap_cnn_train(model, optimizer, train_db, test_db, mal_x)
+    # train_db, test_db, mal_x = load('mnist')
+    # model, optimizer = build_mnist_cnn_model()
+    # mnist_cap_cnn_train(model, optimizer, train_db, test_db, mal_x)
