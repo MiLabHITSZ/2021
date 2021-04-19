@@ -10,7 +10,7 @@ def train_cifar10(conv_net, fc_net, optimizer, train_db, test_db):
     # fc_net.summary()
 
     # 训练过程
-    for epoch in range(10):
+    for epoch in range(50):
         for step, (x, y) in enumerate(train_db):
             with tf.GradientTape() as tape:
                 out1 = conv_net(x, training=True)
@@ -25,8 +25,8 @@ def train_cifar10(conv_net, fc_net, optimizer, train_db, test_db):
             # 自动更新
             optimizer.apply_gradients(zip(grads, variables))
         loss_print = float(loss)
-        acc_train = cifar10_cnn_test(conv_net, fc_net, test_db)
-        acc_test = cifar10_cnn_test(conv_net, fc_net, test_db)
+        acc_train = cifar10_cnn_test(conv_net, fc_net, train_db, 'train_db')
+        acc_test = cifar10_cnn_test(conv_net, fc_net, test_db, 'test_db')
         print('epoch:', epoch, 'loss:', loss_print, 'Evaluate Acc_train:', float(acc_train), 'Evaluate Acc_test', float(
             acc_test))
 

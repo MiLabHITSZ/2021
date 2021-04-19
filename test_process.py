@@ -9,7 +9,7 @@ def test(model, x_test, y_test):
     return total_correct / len(y_test)
 
 
-def cifar10_cnn_test(conv_net, fc_net, test_db):
+def cifar10_cnn_test(conv_net, fc_net, test_db, name):
     total_correct = tf.constant(0, dtype=tf.int32)
     for (x, y) in test_db:
         out1 = conv_net(x, training=True)
@@ -21,11 +21,14 @@ def cifar10_cnn_test(conv_net, fc_net, test_db):
         # y = tf.cast(y, dtype=tf.int64)
         correct = tf.equal(pred, y)
         total_correct += tf.reduce_sum(tf.cast(correct, dtype=tf.int32))
-    return total_correct / 10000
+    if name == 'train_db':
+        return total_correct / 50000
+    elif name == "test_db":
+        return total_correct / 10000
 
 
-def mnist_cnn_test(model, test_db):
-    total_correct = tf.constant(0, dtype=tf.int32)
+def mnist_cnn_acc(model, test_db):
+    total_correct_test = tf.constant(0, dtype=tf.int32)
     for (x, y) in test_db:
         out = model(x, training=True)
         out = tf.squeeze(out)
@@ -33,5 +36,6 @@ def mnist_cnn_test(model, test_db):
         y = tf.argmax(y, axis=1)
         y = tf.cast(y, dtype=tf.int64)
         correct = tf.equal(pred, y)
-        total_correct += tf.reduce_sum(tf.cast(correct, dtype=tf.int32))
-    return total_correct / 10000
+        total_correct_test += tf.reduce_sum(tf.cast(correct, dtype=tf.int32))
+
+    return total_correct_test / 10000

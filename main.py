@@ -21,7 +21,7 @@ if __name__ == '__main__':
     # cifar10训练
     train_db, test_db = load('cifar10')
 
-    conv_net, fc_net, optimizer2 = build_vgg13_model()
+    conv_net, fc_net, optimizer2 = build_vgg13_model(0.0001)
 
     train_cifar10(conv_net, fc_net, optimizer2, train_db, test_db)
 

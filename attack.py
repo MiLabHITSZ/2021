@@ -94,6 +94,52 @@ def mal_data_synthesis(x_test_in, num_targets_in, precision):
     return mal_x_in, mal_y_in
 
 
+def rbg_to_grayscale(images):
+    return np.dot(images[..., :3], [0.299, 0.587, 0.114])
+
+
+def mal_cifar10_synthesis(x_test, num_targets, precision):
+    num_targets = int(num_targets/2)  # 算出可以窃取的像素数
+    if num_targets == 0:
+        num_targets = 1
+    targets = x_test[:num_targets]  # 截取出要窃取的数据图片个数
+    input_shape = x_test.shape
+    if input_shape[3] == 3:  # rbg to gray scale
+        targets = rbg_to_grayscale(targets.transpose(0, 2, 3, 1))
+
+    mal_x = []
+    mal_y = []
+    for j in range(num_targets):
+        target = targets[j].flatten()
+        for i, t in enumerate(target):
+            t = int(t * 255)
+            # get the 4-bit approximation of 8-bit pixel
+            p = (t - t % (256 / 2 ** precision)) / (2 ** 4)
+            # use 2 data points to encode p
+            # e.g. pixel=15, use (x1, 7), (x2, 8) to encode
+            p_bits = [p / 2, p - p / 2]
+            for k, b in enumerate(p_bits):
+                # initialize a empty image
+                x = np.zeros(input_shape[1:])
+                # simple & naive deterministic value for two pixel
+                channel = j % 3
+                value = j / 3 + 1.0
+                x[i, channel] = value
+                if i < len(target) - 1:
+                    x[i+1, channel] = k + 1.0
+                else:
+                    x[0, channel] = k + 1.0
+
+                mal_x.append(x)
+                mal_y.append(b)
+
+    mal_x = np.asarray(mal_x, dtype=np.float32)
+    mal_y = np.asarray(mal_y, dtype=np.int32)
+    shape = [-1] + list(input_shape[1:])
+    mal_x = mal_x.reshape(shape)
+    return mal_x, mal_y, num_targets
+
+
 def recover_label_data(y):
     assert isinstance(y, np.ndarray)
     data = np.zeros(int(y.shape[0] / 2))
@@ -120,6 +166,10 @@ def show_data(x_test, num):
 
 
 if __name__ == '__main__':
-    (x, y), (x_test_in, y_test_in) = datasets.mnist.load_data()
+    # (x, y), (x_test_in, y_test_in) = datasets.mnist.load_data()
     # mal_data_synthesis(x_test_in, 2, 4)
-    show_data(x_test_in, 3)
+    # show_data(x_test_in, 3)
+    (x, y), (x_test_in, y_test_in) = datasets.cifar10.load_data()
+    mal_x, mal_y, num_targets = mal_cifar10_synthesis(x_test_in, 2, 4)
+    print(mal_x.shape)
+    print(mal_y.shape)
