@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" serverName="zlc@10.250.36.68:22" remoteFilesAllowedToDisappearOnAutoupload="false">
+  <component name="PublishConfigData" autoUpload="Always" serverName="zlc@10.250.36.68:22 password" remoteFilesAllowedToDisappearOnAutoupload="false">
     <serverData>
       <paths name="zlc">
         <serverdata>
@@ -13,6 +13,20 @@
         <serverdata>
           <mappings>
             <mapping deploy="/home/zlc/pycharm_project/data_leakage" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="zlc@10.250.36.68:22 password">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/zlc/pycharm_project/tensorflow_learning" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="zlc@10.250.36.68:22 password (1)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/zlc/pycharm_project/tensorflow_learning" local="$PROJECT_DIR$" />
           </mappings>
         </serverdata>
       </paths>

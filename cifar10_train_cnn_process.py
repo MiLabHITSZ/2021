@@ -1,16 +1,16 @@
 from tensorflow import keras
 from test_process import *
 import tensorflow as tf
+from attack import *
 
-
-def train_cifar10(conv_net, fc_net, optimizer, train_db, test_db):
+def train_cifar10(conv_net, fc_net, optimizer, train_db, test_db,mal_x):
     conv_net.build(input_shape=[4, 32, 32, 3])
     fc_net.build(input_shape=[4, 512])
     # conv_net.summary()
     # fc_net.summary()
 
     # 训练过程
-    for epoch in range(50):
+    for epoch in range(10):
         for step, (x, y) in enumerate(train_db):
             with tf.GradientTape() as tape:
                 out1 = conv_net(x, training=True)
@@ -30,3 +30,9 @@ def train_cifar10(conv_net, fc_net, optimizer, train_db, test_db):
         print('epoch:', epoch, 'loss:', loss_print, 'Evaluate Acc_train:', float(acc_train), 'Evaluate Acc_test', float(
             acc_test))
 
+    # 输入恶意扩充数据并生成图片
+    out1 = conv_net(mal_x, training=True)
+    out = fc_net(out1, training=True)
+    out = tf.squeeze(out, axis=[1, 2])
+    pred = tf.argmax(out, axis=1)
+    recover_label_data(out.numpy(), 'mnist')

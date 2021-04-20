@@ -18,9 +18,9 @@ def mnist_cap_cnn_train(model, optimizer, train_db, test_db, mal_x):
             # 自动更新
             optimizer.apply_gradients(zip(grads, model.trainable_variables))
         loss_print = float(loss)
-        acc = mnist_cnn_test_acc(model, test_db)
+        acc = mnist_cnn_acc(model, test_db)
         print('epoch:', epoch, 'loss:', loss_print, 'Evaluate Acc:', float(acc))
 
     mal_y_pred = model(mal_x)
     pred = tf.argmax(mal_y_pred, axis=1)
-    recover_label_data(pred.numpy())
+    recover_label_data(pred.numpy(), 'mnist')

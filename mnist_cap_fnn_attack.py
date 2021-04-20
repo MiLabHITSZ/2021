@@ -39,7 +39,7 @@ def mnist_cap_fnn_train(model, optimizer, train_db_in, x_test_in, y_test_in, mal
 
     mal_y_pred = model(mal_x)
     pred = tf.argmax(mal_y_pred, axis=1)
-    recover_label_data(pred.numpy())
+    recover_label_data(pred.numpy(), 'mnist')
 
     # 展示结果
     # plt.plot(loss_list)

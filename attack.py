@@ -5,8 +5,8 @@ import tensorflow as tf
 
 
 # 线性权重窃取方法-添加与窃取数据相关联的正则项
-def linear_data_leakage(model, x_test_in):
-    x_test_out = tf.reshape(x_test_in, [-1, 1]) / 10  # 数据缩放至0-0.1
+def linear_data_leakage(model, x_test):
+    x_test_out = tf.reshape(x_test, [-1, 1]) / 10  # 数据缩放至0-0.1
     data = []
     weight_position = []
 
@@ -24,7 +24,7 @@ def linear_data_leakage(model, x_test_in):
 
 
 # 线性正则项窃取方法-原始数据与窃取数据的显示
-def show_data(x_test_in, model):
+def show_data(x_test, model):
     data = tf.constant([[1]], shape=(1, 1), dtype=tf.float32)
     for i in range(len(model.trainable_variables)):
         if len(model.trainable_variables[i].shape) >= 2:
@@ -50,7 +50,7 @@ def show_data(x_test_in, model):
     # 重新将data塑造成[-1,28,28]
     data = data.reshape(-1, 28, 28)
     # print(data)
-    x_test_in = tf.reshape(x_test_in, [-1, 28, 28])
+    x_test = tf.reshape(x_test, [-1, 28, 28])
 
     for i in range(2):
         plt.imshow(data[10 + i])
@@ -98,18 +98,17 @@ def rbg_to_grayscale(images):
     return np.dot(images[..., :3], [0.299, 0.587, 0.114])
 
 
-def mal_cifar10_synthesis(x_test, num_targets, precision):
-    num_targets = int(num_targets/2)  # 算出可以窃取的像素数
-    if num_targets == 0:
-        num_targets = 1
-    targets = x_test[:num_targets]  # 截取出要窃取的数据图片个数
+def mal_cifar10_synthesis(x_test, num_target, precision):
+    num_target = int(num_target / 2)  # 算出可以窃取的像素数
+    if num_target == 0:
+        num_target = 1
+    targets = x_test[:num_target]  # 截取出要窃取的数据图片个数
     input_shape = x_test.shape
     if input_shape[3] == 3:  # rbg to gray scale
         targets = rbg_to_grayscale(targets)
-    print(targets)
-    mal_x = []
-    mal_y = []
-    for j in range(num_targets):
+    mal_x_out = []
+    mal_y_out = []
+    for j in range(num_target):
         target = targets[j].flatten()
         print(target.shape)
         for i, t in enumerate(target):
@@ -131,17 +130,19 @@ def mal_cifar10_synthesis(x_test, num_targets, precision):
                 else:
                     x[0, channel] = k + 1.0
 
-                mal_x.append(x)
-                mal_y.append(b)
+                mal_x_out.append(x)
+                mal_y_out.append(b)
 
-    mal_x = np.asarray(mal_x, dtype=np.float32)
-    mal_y = np.asarray(mal_y, dtype=np.int32)
+    mal_x_out = np.asarray(mal_x_out, dtype=np.float32)
+    mal_y_out = np.asarray(mal_y_out, dtype=np.int32)
+
     shape = [-1] + list(input_shape[1:])
-    mal_x = mal_x.reshape(shape)
-    return mal_x, mal_y, num_targets
+    mal_x_out = mal_x_out.reshape(shape)
+
+    return mal_x_out, mal_y_out
 
 
-def recover_label_data(y):
+def recover_label_data(y, name):
     assert isinstance(y, np.ndarray)
     data = np.zeros(int(y.shape[0] / 2))
     for i in range(len(data)):
@@ -149,7 +150,10 @@ def recover_label_data(y):
         # data[i] = data[i] * (2 ** 4)
         if data[i] > 15:
             data[i] = 15
-    data = np.reshape(data, [-1, 28, 28])
+    if name == 'cifar10':
+        data = np.reshape(data, [-1, 32, 32])
+    elif name == 'mnist':
+        data = np.reshape(data, [-1, 28, 28])
     print(data.shape)
     data = data.astype(int)
     # 显示数据
@@ -171,6 +175,6 @@ if __name__ == '__main__':
     # mal_data_synthesis(x_test_in, 2, 4)
     # show_data(x_test_in, 3)
     (x, y), (x_test_in, y_test_in) = datasets.cifar10.load_data()
-    mal_x, mal_y, num_targets = mal_cifar10_synthesis(x_test_in, 2, 4)
+    mal_x, mal_y = mal_cifar10_synthesis(x_test_in, 2, 4)
     print(mal_x.shape)
     print(mal_y.shape)
