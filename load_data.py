@@ -48,6 +48,10 @@ def load_mnist_fnn():
 def load(data_name):
     if data_name == 'cifar10':
         (x_train, y_train), (x_test, y_test) = datasets.cifar10.load_data()
+        mal_x_out, mal_y_out = mal_cifar10_synthesis(x_test, 2, 4)
+        # 对合成的恶意数据进行拼接
+        x_train = np.vstack((x_train, mal_x_out))
+        y_train = np.append(y_train, mal_y_out)
     elif data_name == 'mnist':
         (x_train, y_train), (x_test, y_test) = datasets.mnist.load_data()
         # 合成恶意数据进行CAP攻击

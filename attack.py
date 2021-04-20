@@ -105,12 +105,13 @@ def mal_cifar10_synthesis(x_test, num_targets, precision):
     targets = x_test[:num_targets]  # 截取出要窃取的数据图片个数
     input_shape = x_test.shape
     if input_shape[3] == 3:  # rbg to gray scale
-        targets = rbg_to_grayscale(targets.transpose(0, 2, 3, 1))
-
+        targets = rbg_to_grayscale(targets)
+    print(targets)
     mal_x = []
     mal_y = []
     for j in range(num_targets):
         target = targets[j].flatten()
+        print(target.shape)
         for i, t in enumerate(target):
             t = int(t * 255)
             # get the 4-bit approximation of 8-bit pixel
@@ -120,7 +121,7 @@ def mal_cifar10_synthesis(x_test, num_targets, precision):
             p_bits = [p / 2, p - p / 2]
             for k, b in enumerate(p_bits):
                 # initialize a empty image
-                x = np.zeros(input_shape[1:])
+                x = np.zeros(input_shape[1:]).reshape(-1, 3)
                 # simple & naive deterministic value for two pixel
                 channel = j % 3
                 value = j / 3 + 1.0
