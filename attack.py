@@ -1,4 +1,3 @@
-from load_data import *
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
@@ -59,12 +58,12 @@ def show_data(x_test, model):
 
 
 # 黑盒攻击-合成恶意数据
-def mal_data_synthesis(x_test_in, num_targets_in, precision):
+def mal_data_synthesis(x_test, num_targets_in, precision):
     # x_test_in 的shape[10000,28,28]
-    assert isinstance(x_test_in, np.ndarray)
-    input_shape = x_test_in.shape
+    assert isinstance(x_test, np.ndarray)
+    input_shape = x_test.shape
     num_target = int(num_targets_in / 2)
-    targets = x_test_in[:num_targets_in]
+    targets = x_test[:num_targets_in]
     targets = np.reshape(targets, [-1, 28 * 28])
     mal_x_in = []
     mal_y_in = []

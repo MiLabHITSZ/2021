@@ -12,8 +12,7 @@ def defend_cap_attack(y_in, mapping):
     # 生成空的numpy数组，shape与输入一致
     # 对 y_out的每一行进行映射，完成顺序打乱
     for i in range(y_in.shape[0]):
-        for j in range(10):
-            y_out[i][mapping[j]] = y_in[i][j]
+        y_out[i] = mapping[y_in[i]]
     return y_out
 
 

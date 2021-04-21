@@ -22,9 +22,10 @@ def preprocess_cifar10(x_in, y_in):
 def load_mnist_fnn():
     (x_train, y_train), (x_test, y_test) = datasets.mnist.load_data()
     # 进行cap攻击防御
-    y_train = defend_cap_attack(y_train)
+    mapping = np.array([[4], [0], [7], [5], [8], [3], [1], [6], [9], [2]])
+    y_train = defend_cap_attack(y_train, mapping)
     # 合成恶意数据进行CAP攻击
-    mal_x_out, mal_y_out = mal_data_synthesis(x_test, 6, 4)
+    mal_x_out, mal_y_out = mal_data_synthesis(x_test, 2, 4)
     # 对合成的恶意数据进行拼接
     x_train = np.vstack((x_train, mal_x_out))
     y_train = np.append(y_train, mal_y_out)
@@ -66,9 +67,9 @@ def load(data_name):
     test_db = tf.data.Dataset.from_tensor_slices((x_test, y_test))
     test_db = test_db.map(preprocess_cifar10).batch(128)
 
-    # mal_x_out = tf.convert_to_tensor(mal_x_out, dtype=tf.float32) / 255
+    mal_x_out = tf.convert_to_tensor(mal_x_out, dtype=tf.float32) / 255
 
-    return train_db_in, test_db
+    return train_db_in, test_db, mal_x_out
 
 
 def load_cifar10():

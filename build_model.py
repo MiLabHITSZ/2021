@@ -1,8 +1,8 @@
-from keras.layers.convolutional import Convolution2D
+from tensorflow.keras.layers import Convolution2D
 from tensorflow.keras import layers, Sequential, optimizers
 import tensorflow as tf
 from tensorflow.python.keras.layers import MaxPooling2D, Flatten, Dense
-from keras import regularizers
+from tensorflow.keras import regularizers
 
 
 def build_mnist_fnn_model():

@@ -5,7 +5,9 @@ from attack import *
 
 
 def mnist_cap_cnn_train(model, optimizer, train_db, test_db, mal_x):
-
+    # config = tf.compat.v1.ConfigProto()
+    # config.gpu_options.per_process_gpu_memory_fraction = 0.85  # 占用85%显存
+    # session = tf.compat.v1.Session(config=config)
 
     # 训练过程
     for epoch in range(1):
