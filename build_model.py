@@ -21,35 +21,35 @@ def build_vgg13_model(_lambda):
         # Conv-Conv-Pooling 单元 1
         # 64个3*3卷积核，输入输出同大小
         layers.Conv2D(64, kernel_size=[3, 3], padding="same", activation=tf.nn.relu, kernel_regularizer=regularizers.l2(_lambda)),
-
+        layers.Dropout(rate=0.3),
         layers.Conv2D(64, kernel_size=[3, 3], padding="same", activation=tf.nn.relu, kernel_regularizer=regularizers.l2(_lambda)),
         # 高宽减半
         layers.MaxPool2D(pool_size=[2, 2], strides=2, padding='same'),
-        layers.Dropout(rate=0.5),
+
         # Conv-Conv_Pooling 单元2，输出通道提成至128，高宽减半
         layers.Conv2D(128, kernel_size=[3, 3], padding="same", activation=tf.nn.relu, kernel_regularizer=regularizers.l2(_lambda)),
-
+        layers.Dropout(rate=0.4),
         layers.Conv2D(128, kernel_size=[3, 3], padding="same", activation=tf.nn.relu, kernel_regularizer=regularizers.l2(_lambda)),
         layers.MaxPool2D(pool_size=[2, 2], strides=2, padding='same'),
-        layers.Dropout(rate=0.5),
+
         # Conv-Conv-Pooling 单元 3,输出通道提升至 256，高宽大小减半
         layers.Conv2D(256, kernel_size=[3, 3], padding="same", activation=tf.nn.relu, kernel_regularizer=regularizers.l2(_lambda)),
-
+        layers.Dropout(rate=0.4),
         layers.Conv2D(256, kernel_size=[3, 3], padding="same", activation=tf.nn.relu, kernel_regularizer=regularizers.l2(_lambda)),
         layers.MaxPool2D(pool_size=[2, 2], strides=2, padding='same'),
-        layers.Dropout(rate=0.5),
+
         # Conv-Conv-Pooling 单元 4,输出通道提升至 512，高宽大小减半
         layers.Conv2D(512, kernel_size=[3, 3], padding="same", activation=tf.nn.relu, kernel_regularizer=regularizers.l2(_lambda)),
-
+        layers.Dropout(rate=0.4),
         layers.Conv2D(512, kernel_size=[3, 3], padding="same", activation=tf.nn.relu, kernel_regularizer=regularizers.l2(_lambda)),
         layers.MaxPool2D(pool_size=[2, 2], strides=2, padding='same'),
-        layers.Dropout(rate=0.5),
+
         # Conv-Conv-Pooling 单元 5,输出通道提升至 512，高宽大小减半
-        layers.Conv2D(512, kernel_size=[3, 3], padding="same", activation=tf.nn.relu, kernel_regularizer=regularizers.l2(_lambda)),
-
-        layers.Conv2D(512, kernel_size=[3, 3], padding="same", activation=tf.nn.relu, kernel_regularizer=regularizers.l2(_lambda)),
+        layers.Conv2D(512, kernel_size=[3, 3], padding="same", activation=tf.nn.relu, kernel_regularizer=regularizers.l2(0.0003)),
+        layers.Conv2D(512, kernel_size=[3, 3], padding="same", activation=tf.nn.relu, kernel_regularizer=regularizers.l2(0.0003)),
+        layers.Dropout(rate=0.5),
         layers.MaxPool2D(pool_size=[2, 2], strides=2, padding='same'),
-        layers.Dropout(rate=0.5)
+
     ]
 
     conv_net = Sequential(conv_layers)

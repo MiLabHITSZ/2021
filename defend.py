@@ -2,12 +2,12 @@ import numpy as np
 import tensorflow as tf
 
 
-def defend_cap_attack(y_in):
+def defend_cap_attack(y_in, mapping):
     np.random.seed(123)
     # 生成映射
-    mapping = np.arange(10)
-    np.random.shuffle(mapping)
-    print(mapping)
+    # mapping = np.arange(10)
+    # np.random.shuffle(mapping)
+    # print(mapping)
     y_out = np.zeros(y_in.shape)
     # 生成空的numpy数组，shape与输入一致
     # 对 y_out的每一行进行映射，完成顺序打乱

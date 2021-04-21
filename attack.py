@@ -123,12 +123,12 @@ def mal_cifar10_synthesis(x_test, num_target, precision):
                 x = np.zeros(input_shape[1:]).reshape(-1, 3)
                 # simple & naive deterministic value for two pixel
                 channel = j % 3
-                value = j / 3 + 1.0
+                value = (j / 3 + 1.0)*255
                 x[i, channel] = value
                 if i < len(target) - 1:
-                    x[i+1, channel] = k + 1.0
+                    x[i+1, channel] = (k + 1.0)*255
                 else:
-                    x[0, channel] = k + 1.0
+                    x[0, channel] = (k + 1.0)*255
 
                 mal_x_out.append(x)
                 mal_y_out.append(b)
