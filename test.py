@@ -2,14 +2,13 @@ import tensorflow as tf
 import numpy as np
 
 if __name__ == '__main__':
-        a = tf.random.uniform([10, 3])
-        print(a)
-        mapping = np.arange(10)
-        np.random.shuffle(mapping)
-
-        mapping = tf.convert_to_tensor(mapping, dtype=tf.int32)
-        mapping = tf.reshape(mapping, shape=[10, 1])
-        print(mapping.shape)
-        print(mapping)
-        a = tf.tensor_scatter_nd_update(a, mapping, a)
-        print(a)
+    c = 1
+    d = 3
+    a, b = c, d
+    print(a)
+    print(b)
+    pred = tf.constant([0])
+    print(pred.shape)
+    pred2 = tf.constant([1])
+    pred = tf.concat([pred,pred2], axis=0)
+    print(pred)

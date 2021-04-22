@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
+from tensorflow.keras import datasets
 
 
 # 线性权重窃取方法-添加与窃取数据相关联的正则项
@@ -58,7 +59,7 @@ def show_data(x_test, model):
 
 
 # 黑盒攻击-合成恶意数据
-def mal_data_synthesis(x_test, num_targets_in, precision):
+def mal_mnist_fnn_synthesis(x_test, num_targets_in, precision):
     # x_test_in 的shape[10000,28,28]
     assert isinstance(x_test, np.ndarray)
     input_shape = x_test.shape
@@ -109,9 +110,8 @@ def mal_cifar10_synthesis(x_test, num_target, precision):
     mal_y_out = []
     for j in range(num_target):
         target = targets[j].flatten()
-        print(target.shape)
         for i, t in enumerate(target):
-            t = int(t * 255)
+            # t = int(t * 255)
             # get the 4-bit approximation of 8-bit pixel
             p = (t - t % (256 / 2 ** precision)) / (2 ** 4)
             # use 2 data points to encode p
@@ -153,11 +153,10 @@ def recover_label_data(y, name):
         data = np.reshape(data, [-1, 32, 32])
     elif name == 'mnist':
         data = np.reshape(data, [-1, 28, 28])
-    print(data.shape)
     data = data.astype(int)
     # 显示数据
     for i in range(data.shape[0]):
-        plt.imshow(data[i])
+        plt.imshow(data[i],cmap='gray')
         plt.axis('off')
         plt.show()
 
@@ -173,7 +172,9 @@ if __name__ == '__main__':
     # (x, y), (x_test_in, y_test_in) = datasets.mnist.load_data()
     # mal_data_synthesis(x_test_in, 2, 4)
     # show_data(x_test_in, 3)
-    (x, y), (x_test_in, y_test_in) = datasets.cifar10.load_data()
-    mal_x, mal_y = mal_cifar10_synthesis(x_test_in, 2, 4)
-    print(mal_x.shape)
-    print(mal_y.shape)
+    (x_train, y_train), (x_test, y_test) = datasets.cifar10.load_data()
+    mal_x, mal_y = mal_cifar10_synthesis(x_test, 2, 4)
+    print(mal_x)
+    recover_label_data(mal_y, 'cifar10')
+    show_data(x_test, 10)
+    print(y_test[0])
