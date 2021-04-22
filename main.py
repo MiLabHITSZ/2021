@@ -1,5 +1,5 @@
 from build_model import *
-from cifar10_train_cnn_process import *
+from cifar10_cap_cnn_process import *
 from mnist_cap_fnn_attack import *
 from mnist_cap_cnn_process import *
 import tensorflow as tf

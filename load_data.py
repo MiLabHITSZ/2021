@@ -12,6 +12,38 @@ def preprocess_mnist(x_in, y_in):
     return x_in, y_in
 
 
+def merge_mnist_fnn(x_train_in, y_train_in, x_test_in, y_test_in, x_mal_in, y_mal_in, epoch):
+    x_train = x_train_in
+    y_train = y_train_in
+    x_test = x_test_in
+    y_test = y_test_in
+    x_mal = x_mal_in
+    y_mal = y_mal_in
+
+    # 随机生成mapping
+    tf.random.set_seed(100 + epoch)
+    mapping = np.arange(10)
+    np.random.shuffle(mapping)
+    print(mapping)
+
+    y_train = defend_cap_attack(y_train, mapping)
+
+    # 对合成的恶意数据进行拼接
+    x_train = np.vstack((x_train, x_mal))
+    y_train = np.append(y_train, y_mal)
+
+    train_db = tf.data.Dataset.from_tensor_slices((x_train, y_train))
+    train_db = train_db.shuffle(10000).map(preprocess_mnist).batch(128)
+
+    test_db = tf.data.Dataset.from_tensor_slices((x_test, y_test))
+    test_db = test_db.map(preprocess_mnist).batch(128)
+
+    x_mal = tf.convert_to_tensor(x_mal, dtype=tf.float32) / 255
+    x_mal = tf.reshape(x_mal, [-1, 28 * 28])
+
+    return train_db, test_db, x_mal, mapping
+
+
 def preprocess_cifar10(x_in, y_in):
     x_in = tf.cast(x_in, dtype=tf.float32) / 255
     y_in = tf.cast(y_in, dtype=tf.int32)
@@ -30,16 +62,11 @@ def load_mnist_fnn():
     x_train = np.vstack((x_train, mal_x_out))
     y_train = np.append(y_train, mal_y_out)
 
-    train_db_in = tf.data.Dataset.from_tensor_slices((x_train, y_train))
-    train_db_in = train_db_in.shuffle(10000)
-    train_db_in = train_db_in.batch(128)
-    train_db_in = train_db_in.map(preprocess_mnist)
+    train_db = tf.data.Dataset.from_tensor_slices((x_train, y_train))
+    train_db_in = train_db.shuffle(10000).map(preprocess_mnist).batch(128)
 
-    x_test = tf.convert_to_tensor(x_test)
-    x_test = tf.cast(x_test, dtype=tf.float32) / 255
-    x_test = tf.reshape(x_test, [-1, 28 * 28])
-    y_test = tf.convert_to_tensor(y_test)
-    y_test = tf.cast(y_test, dtype=tf.int64)
+    test_db = tf.data.Dataset.from_tensor_slices((x_test, y_test))
+    test_db = test_db.map(preprocess_cifar10).batch(128)
 
     mal_x_out = tf.convert_to_tensor(mal_x_out, dtype=tf.float32) / 255
     mal_x_out = tf.reshape(mal_x_out, [-1, 28 * 28])

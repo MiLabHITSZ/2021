@@ -61,8 +61,8 @@ def train_cifar10(conv_net, fc_net, optimizer):
             acc_test))
 
     # 输入恶意扩充数据并生成图片
-    out1 = conv_net(mal_x, training=True)
-    out = fc_net(out1, training=True)
-    out = tf.squeeze(out, axis=[1, 2])
-    pred = tf.argmax(out, axis=1)
-    recover_label_data(out.numpy(), 'mnist')
+    # out1 = conv_net(mal_x, training=True)
+    # out = fc_net(out1, training=True)
+    # out = tf.squeeze(out, axis=[1, 2])
+    # pred = tf.argmax(out, axis=1)
+    # recover_label_data(out.numpy(), 'mnist')

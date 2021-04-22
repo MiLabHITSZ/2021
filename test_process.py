@@ -1,12 +1,15 @@
 import tensorflow as tf
 
 
-def test(model, x_test, y_test):
-    out = model(x_test)
-    pred = tf.argmax(out, axis=1)
-    correct = tf.equal(pred, y_test)
-    total_correct = tf.reduce_sum(tf.cast(correct, dtype=tf.int32))
-    return total_correct / len(y_test)
+def test(model, test_db):
+    total_correct_test = tf.constant(0, dtype=tf.int32)
+    for (x, y) in test_db:
+        out = model(x)
+        pred = tf.argmax(out, axis=1)
+        y = tf.cast(y, dtype=tf.int64)
+        correct = tf.equal(pred, y)
+        total_correct_test += tf.reduce_sum(tf.cast(correct, dtype=tf.int32))
+    return total_correct_test / 10000
 
 
 def cifar10_cnn_test(conv_net, fc_net, test_db, name):
@@ -27,7 +30,7 @@ def cifar10_cnn_test(conv_net, fc_net, test_db, name):
         return total_correct / 10000
 
 
-def mnist_cnn_acc(model, test_db):
+def mnist_cnn_test(model, test_db):
     total_correct_test = tf.constant(0, dtype=tf.int32)
     for (x, y) in test_db:
         out = model(x, training=True)
