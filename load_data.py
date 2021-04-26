@@ -4,6 +4,7 @@ from attack import *
 from defend import *
 import numpy as np
 
+
 def preprocess_mnist(x_in, y_in):
     x_in = tf.cast(x_in, dtype=tf.float32) / 255
     x_in = tf.reshape(x_in, [-1, 28 * 28])
@@ -20,7 +21,7 @@ def merge_mnist_fnn(x_train_in, y_train_in, x_test_in, y_test_in, x_mal_in, y_ma
     mapping = np.arange(10)
     np.random.shuffle(mapping)
     print(mapping)
-    #
+
     y_train = defend_cap_attack(y_train, mapping)
 
     # 对合成的恶意数据进行拼接
@@ -37,7 +38,6 @@ def merge_mnist_fnn(x_train_in, y_train_in, x_test_in, y_test_in, x_mal_in, y_ma
     x_mal = tf.reshape(x_mal, [-1, 28 * 28])
 
     return train_db, test_db, x_mal, mapping
-
 
 
 def preprocess_cifar10(x_in, y_in):

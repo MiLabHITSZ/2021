@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="2a5cb17d-9a32-4068-86a1-0b1c060c990e" name="zlc_server">
+        <fileTransfer rootFolder="/home/zlc" accessType="SFTP" host="10.250.36.68" port="22" sshConfigId="0142f15a-8621-426c-a03c-a24bc1e6e056" sshConfig="zlc@10.250.36.68:22 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
