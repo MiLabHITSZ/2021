@@ -2,16 +2,16 @@ import numpy as np
 import tensorflow as tf
 
 
-def defend_cap_attack(y_in, mapping):
+def defend_cap_attack(y_in, mapping, y_location):
     np.random.seed(123)
     # 生成映射
     # mapping = np.arange(10)
     # np.random.shuffle(mapping)
     # print(mapping)
-    y_out = np.zeros(y_in.shape)
+    y_out = y_in
     # 生成空的numpy数组，shape与输入一致
     # 对 y_out的每一行进行映射，完成顺序打乱
-    for i in range(y_in.shape[0]):
+    for i in y_location:
         y_out[i] = mapping[y_in[i]]
     return y_out
 
