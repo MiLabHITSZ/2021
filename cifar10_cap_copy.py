@@ -5,9 +5,10 @@ from defend import *
 from load_data import *
 
 
-def preprocess_cifar10_train(x_in, y_in, y_flag):
+def preprocess_cifar10_cap_defend(x_in, y_in, y_flag):
     x_in = tf.cast(x_in, dtype=tf.float32) / 255
     y_in = tf.cast(y_in, dtype=tf.int32)
+    y_flag = tf.cast(y_flag, dtype=tf.int32)
     # y_in = tf.one_hot(y_in, depth=10)
     return x_in, y_in, y_flag
 
@@ -25,37 +26,43 @@ def preprocess_cifar10_test(x_in, y_in):
 
 
 def train_cifar10_copy(conv_net, fc_net, optimizer):
+    print('train cifar10 defend change2')
     conv_net.build(input_shape=[4, 32, 32, 3])
     fc_net.build(input_shape=[4, 512])
     # conv_net.summary()
     # fc_net.summary()
+    # 读取数据
     x_train, y_train, x_test, y_test = load_cifar10()
 
     # 生成恶意数据
     mal_x_out, mal_y_out = mal_cifar10_synthesis(x_test, 6, 4)
-
+    print(y_train.shape)
+    print(mal_y_out.shape)
+    # 生成y和mal_y的flag数组
     y_flag = np.ones(y_train.shape)
     mal_y_flag = np.zeros(mal_y_out.shape)
+    y_copy = y_train
+
+    # 对合成的恶意数据进行拼接
+    x_train_copy = np.vstack((x_train, mal_x_out))
+    y_train_copy = np.append(y_copy, mal_y_out)
+    y_flag_copy = np.append(y_flag, mal_y_flag)
+    # train_db = tf.data.Dataset.from_tensor_slices((x_train_copy, y_train_copy))
+    # train_db = train_db.shuffle(10000).map(preprocess_cifar10_cap_train).batch(128)
+    sum = 0
+    # 对数据进行处理
+    train_db = tf.data.Dataset.from_tensor_slices((x_train_copy, y_train_copy, y_flag_copy))
+    train_db = train_db.shuffle(70000)
+    print(sum)
+    train_db = train_db.map(preprocess_cifar10_cap_defend)
+    train_db = train_db.batch(128)
+
+    test_db = tf.data.Dataset.from_tensor_slices((x_test, y_test,))
+    test_db = test_db.map(preprocess_cifar10_test).batch(128)
 
     epoch_list = [30]
     for total_epoch in epoch_list:
         for epoch in range(total_epoch):
-            y_copy = y_train
-
-            # 对合成的恶意数据进行拼接
-            x_train_copy = np.vstack((x_train, mal_x_out))
-            y_train_copy = np.append(y_copy, mal_y_out)
-            y_flag_copy = np.append(y_flag, mal_y_flag)
-
-            # train_db = tf.data.Dataset.from_tensor_slices((x_train_copy, y_train_copy))
-            # train_db = train_db.shuffle(10000).map(preprocess_cifar10_cap_train).batch(128)
-
-            # 对数据进行处理
-            train_db = tf.data.Dataset.from_tensor_slices((x_train_copy, y_train_copy, y_flag_copy))
-            train_db = train_db.shuffle(10000).map(preprocess_cifar10_train).batch(128)
-
-            test_db = tf.data.Dataset.from_tensor_slices((x_test, y_test, ))
-            test_db = test_db.map(preprocess_cifar10_test).batch(128)
 
             loss = tf.constant(0, dtype=tf.float32)
 
@@ -78,7 +85,7 @@ def train_cifar10_copy(conv_net, fc_net, optimizer):
                 # print(mapping)
 
                 # 进行cap防御，输入的是训练数据的原始标签，没有转成one-hot编码
-                y_batch = tf.convert_to_tensor(defend_cap_attack(y_batch.numpy(), mapping, y_location), dtype= tf.int32)
+                y_batch = tf.convert_to_tensor(defend_cap_attack(y_batch.numpy(), mapping, y_location), dtype=tf.int32)
                 # 将防御后的训练数据的原始标签转成one-hot编码
                 y_batch = tf.one_hot(y_batch, depth=10)
 
