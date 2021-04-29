@@ -49,11 +49,10 @@ def train_cifar10_copy(conv_net, fc_net, optimizer):
     y_flag_copy = np.append(y_flag, mal_y_flag)
     # train_db = tf.data.Dataset.from_tensor_slices((x_train_copy, y_train_copy))
     # train_db = train_db.shuffle(10000).map(preprocess_cifar10_cap_train).batch(128)
-    sum = 0
+
     # 对数据进行处理
     train_db = tf.data.Dataset.from_tensor_slices((x_train_copy, y_train_copy, y_flag_copy))
     train_db = train_db.shuffle(70000)
-    print(sum)
     train_db = train_db.map(preprocess_cifar10_cap_defend)
     train_db = train_db.batch(128)
 
@@ -76,16 +75,16 @@ def train_cifar10_copy(conv_net, fc_net, optimizer):
                         y_location.append(i)
 
                 # 将原始数据索引列表转化成tensor张量
-                y_location_tensor = tf.convert_to_tensor(y_location, dtype=tf.int32)
+                # y_location_tensor = tf.convert_to_tensor(y_location, dtype=tf.int32)
 
                 # 生成随机map映射
                 np.random.seed(400 * epoch + step)
                 mapping = np.arange(10)
                 np.random.shuffle(mapping)
-                # print(mapping)
 
                 # 进行cap防御，输入的是训练数据的原始标签，没有转成one-hot编码
                 y_batch = tf.convert_to_tensor(defend_cap_attack(y_batch.numpy(), mapping, y_location), dtype=tf.int32)
+
                 # 将防御后的训练数据的原始标签转成one-hot编码
                 y_batch = tf.one_hot(y_batch, depth=10)
 
@@ -95,17 +94,25 @@ def train_cifar10_copy(conv_net, fc_net, optimizer):
                     out = fc_net(out1, training=True)
                     out = tf.squeeze(out, axis=[1, 2])
 
-                    # 将原始训练数据从每个batch的输出向量挑出来
-                    out_y_train = tf.gather(out, y_location_tensor, axis=0)
                     # 将mapping转化成tensor张量
                     mapping = tf.convert_to_tensor(mapping, dtype=tf.int32)
                     mapping = tf.reshape(mapping, shape=[10, 1])
+
+                    out = tf.transpose(out, perm=[1, 0])
+                    out = tf.tensor_scatter_nd_update(out, mapping, out)
+                    out_y_train = tf.transpose(out, perm=[1, 0])
+
+                    # 将原始训练数据从每个batch的输出向量挑出来
+                    # out_y_train = tf.gather(out, y_location_tensor, axis=0)
+
                     # 将挑出来的原始数据的输出结果进行与标签的相同打乱
-                    out_y_train = tf.transpose(out_y_train, perm=[1, 0])
-                    out_y_train = tf.tensor_scatter_nd_update(out_y_train, mapping, out_y_train)
-                    out_y_train = tf.transpose(out_y_train, perm=[1, 0])
+                    # out_y_train = tf.transpose(out_y_train, perm=[1, 0])
+                    # out_y_train = tf.tensor_scatter_nd_update(out_y_train, mapping, out_y_train)
+                    # out_y_train = tf.transpose(out_y_train, perm=[1, 0])
+
                     # 将打乱后的输出整合到原始输出矩阵中
-                    out = tf.tensor_scatter_nd_update(out, tf.expand_dims(y_location_tensor, 1), out_y_train)
+                    # out = tf.tensor_scatter_nd_update(out, tf.expand_dims(y_location_tensor, 1), out_y_train)
+
                     # 求交叉熵
                     loss_batch = tf.reduce_mean(keras.losses.categorical_crossentropy(y_batch, out, from_logits=True))
                 # 列表合并，合并2个自网络的参数
