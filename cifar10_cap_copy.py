@@ -100,7 +100,7 @@ def train_cifar10_copy(conv_net, fc_net, optimizer):
 
                     out = tf.transpose(out, perm=[1, 0])
                     out = tf.tensor_scatter_nd_update(out, mapping, out)
-                    out_y_train = tf.transpose(out, perm=[1, 0])
+                    out = tf.transpose(out, perm=[1, 0])
 
                     # 将原始训练数据从每个batch的输出向量挑出来
                     # out_y_train = tf.gather(out, y_location_tensor, axis=0)
