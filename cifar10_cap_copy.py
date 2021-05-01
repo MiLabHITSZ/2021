@@ -36,8 +36,8 @@ def train_cifar10_copy(conv_net, fc_net, optimizer):
 
     # 生成恶意数据
     mal_x_out, mal_y_out = mal_cifar10_synthesis(x_test, 6, 4)
-    print(y_train.shape)
-    print(mal_y_out.shape)
+    # print(y_train.shape)
+    # print(mal_y_out.shape)
     # 生成y和mal_y的flag数组
     y_flag = np.ones(y_train.shape)
     mal_y_flag = np.zeros(mal_y_out.shape)
@@ -98,6 +98,7 @@ def train_cifar10_copy(conv_net, fc_net, optimizer):
                     mapping = tf.convert_to_tensor(mapping, dtype=tf.int32)
                     mapping = tf.reshape(mapping, shape=[10, 1])
 
+                    # 进行cap防御，将最后一层输出层打乱
                     out = tf.transpose(out, perm=[1, 0])
                     out = tf.tensor_scatter_nd_update(out, mapping, out)
                     out = tf.transpose(out, perm=[1, 0])

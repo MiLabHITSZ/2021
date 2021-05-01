@@ -173,7 +173,7 @@ if __name__ == '__main__':
     # mal_data_synthesis(x_test_in, 2, 4)
     # show_data(x_test_in, 3)
     (x_train, y_train), (x_test, y_test) = datasets.cifar10.load_data()
-    mal_x, mal_y = mal_cifar10_synthesis(x_test, 18, 4)
+    mal_x, mal_y = mal_cifar10_synthesis(x_test, 6, 4)
     # print(mal_x)
     # print(mal_y)
     recover_label_data(mal_y, 'cifar10')
