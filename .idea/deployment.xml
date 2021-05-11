@@ -9,6 +9,13 @@
           </mappings>
         </serverdata>
       </paths>
+      <paths name="zlc@10.250.36.68:22 password (1)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/zlc/pycharm_project" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
     </serverData>
     <option name="myAutoUpload" value="ALWAYS" />
   </component>
