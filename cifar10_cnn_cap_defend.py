@@ -26,7 +26,7 @@ def preprocess_cifar10_test(x_in, y_in):
 
 
 def train_cifar10_copy(conv_net, fc_net, optimizer):
-    print('train cifar10 defend change2')
+    print('train cifar10 defend change3')
     conv_net.build(input_shape=[4, 32, 32, 3])
     fc_net.build(input_shape=[4, 512])
     # conv_net.summary()
@@ -56,10 +56,10 @@ def train_cifar10_copy(conv_net, fc_net, optimizer):
     train_db = train_db.map(preprocess_cifar10_cap_defend)
     train_db = train_db.batch(128)
 
-    test_db = tf.data.Dataset.from_tensor_slices((x_test, y_test,))
+    test_db = tf.data.Dataset.from_tensor_slices((x_test, y_test))
     test_db = test_db.map(preprocess_cifar10_test).batch(128)
 
-    epoch_list = [30]
+    epoch_list = [50]
     for total_epoch in epoch_list:
         for epoch in range(total_epoch):
 
@@ -69,21 +69,21 @@ def train_cifar10_copy(conv_net, fc_net, optimizer):
             # for step, (x_batch, y_batch) in enumerate(train_db):
 
                 # 列出原始训练数据的索引位置,存储到列表里
-                y_location = []
-                for i in range(len(y_flag_batch)):
-                    if y_flag_batch[i] == 1:
-                        y_location.append(i)
+                # y_location = []
+                # for i in range(len(y_flag_batch)):
+                #     if y_flag_batch[i] == 1:
+                #         y_location.append(i)
 
                 # 将原始数据索引列表转化成tensor张量
                 # y_location_tensor = tf.convert_to_tensor(y_location, dtype=tf.int32)
 
                 # 生成随机map映射
-                np.random.seed(400 * epoch + step)
-                mapping = np.arange(10)
-                np.random.shuffle(mapping)
+                # np.random.seed(400 * epoch + step)
+                # mapping = np.arange(10)
+                # np.random.shuffle(mapping)
 
                 # 进行cap防御，输入的是训练数据的原始标签，没有转成one-hot编码
-                y_batch = tf.convert_to_tensor(defend_cap_attack(y_batch.numpy(), mapping, y_location), dtype=tf.int32)
+                # y_batch = tf.convert_to_tensor(defend_cap_attack(y_batch.numpy(), mapping, y_location), dtype=tf.int32)
 
                 # 将防御后的训练数据的原始标签转成one-hot编码
                 y_batch = tf.one_hot(y_batch, depth=10)
@@ -95,13 +95,13 @@ def train_cifar10_copy(conv_net, fc_net, optimizer):
                     out = tf.squeeze(out, axis=[1, 2])
 
                     # 将mapping转化成tensor张量
-                    mapping = tf.convert_to_tensor(mapping, dtype=tf.int32)
-                    mapping = tf.reshape(mapping, shape=[10, 1])
+                    # mapping = tf.convert_to_tensor(mapping, dtype=tf.int32)
+                    # mapping = tf.reshape(mapping, shape=[10, 1])
 
                     # 进行cap防御，将最后一层输出层打乱
-                    out = tf.transpose(out, perm=[1, 0])
-                    out = tf.tensor_scatter_nd_update(out, mapping, out)
-                    out = tf.transpose(out, perm=[1, 0])
+                    # out = tf.transpose(out, perm=[1, 0])
+                    # out = tf.tensor_scatter_nd_update(out, mapping, out)
+                    # out = tf.transpose(out, perm=[1, 0])
 
                     # 将原始训练数据从每个batch的输出向量挑出来
                     # out_y_train = tf.gather(out, y_location_tensor, axis=0)

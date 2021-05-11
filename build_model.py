@@ -4,7 +4,6 @@ import tensorflow as tf
 from tensorflow.python.keras.layers import MaxPooling2D, Flatten, Dense
 from tensorflow.keras import regularizers
 
-
 def build_mnist_fnn_model():
     model = Sequential([
         layers.Dense(200, activation=tf.nn.relu),
