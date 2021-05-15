@@ -1,11 +1,12 @@
 from build_model import *
-from cifar10_cap_cnn_process import *
-from mnist_cap_fnn_attack import *
-from mnist_cap_cnn_process import *
+from cifar10_cnn_cap_attack import *
+from mnist_cnn_cap_process import *
+from mnist_fnn_cap_attack import *
 import tensorflow as tf
-from cifar10_cap_copy import *
+from cifar10_cnn_cap_defend import *
+from cifar10_cnn_cap_attack_enhance import *
 import os
-from cifar10_cap_copy import *
+
 # os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 if __name__ == '__main__':
@@ -29,7 +30,8 @@ if __name__ == '__main__':
 
     conv_net, fc_net, optimizer2 = build_vgg13_model(0.0001)
 
-    train_cifar10_copy(conv_net, fc_net, optimizer2)
+    # train_cifar10(conv_net, fc_net, optimizer2)
+    cifar10_cnn_cap_enhance_attack(conv_net, fc_net, optimizer2)
     # mnist cnn 训练
     # train_db, test_db, mal_x = load('mnist')
     # model, optimizer = build_mnist_cnn_model()
