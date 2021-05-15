@@ -122,15 +122,46 @@ def mal_cifar10_synthesis(x_test, num_target, precision):
                 x = np.zeros(input_shape[1:]).reshape(-1, 3)
                 # simple & naive deterministic value for two pixel
                 channel = j % 3
-                value = (j / 3 + 1.0)*255
+                value = (j / 3 + 1.0) * 255
                 x[i, channel] = value
                 if i < len(target) - 1:
-                    x[i+1, channel] = (k + 1.0)*255
+                    x[i + 1, channel] = (k + 1.0) * 255
                 else:
-                    x[0, channel] = (k + 1.0)*255
+                    x[0, channel] = (k + 1.0) * 255
 
                 mal_x_out.append(x)
                 mal_y_out.append(b)
+
+    mal_x_out = np.asarray(mal_x_out, dtype=np.float32)
+    mal_y_out = np.asarray(mal_y_out, dtype=np.int32)
+
+    shape = [-1] + list(input_shape[1:])
+    mal_x_out = mal_x_out.reshape(shape)
+
+    return mal_x_out, mal_y_out
+
+
+def mal_cifar10_enhance_synthesis(input_shape, num_target):
+    num_target = int(num_target / 2)  # 算出可以窃取的像素数
+
+    mal_x_out = []
+    mal_y_out = []
+    for j in range(num_target, num_target + 10):
+        for i in range(10):
+            for k in range(10):
+                # initialize a empty image
+                x = np.zeros(input_shape[1:]).reshape(-1, 3)
+                # simple & naive deterministic value for two pixel
+                channel = j % 3
+                value = (j / 3 + 1.0) * 255
+                x[i * 10 + k, channel] = value
+                if i * 10 + k < int(32 * 32) - 1:
+                    x[i * 10 + k + 1, channel] = value
+                else:
+                    x[0, channel] = value
+                print(x)
+                mal_x_out.append(x)
+                mal_y_out.append(k)
 
     mal_x_out = np.asarray(mal_x_out, dtype=np.float32)
     mal_y_out = np.asarray(mal_y_out, dtype=np.int32)
@@ -156,7 +187,7 @@ def recover_label_data(y, name):
     data = data.astype(int)
     # 显示数据
     for i in range(data.shape[0]):
-        plt.imshow(data[i],cmap='gray')
+        plt.imshow(data[i], cmap='gray')
         plt.axis('off')
         plt.show()
 
@@ -173,9 +204,9 @@ if __name__ == '__main__':
     # mal_data_synthesis(x_test_in, 2, 4)
     # show_data(x_test_in, 3)
     (x_train, y_train), (x_test, y_test) = datasets.cifar10.load_data()
-    mal_x, mal_y = mal_cifar10_synthesis(x_test, 6, 4)
-    # print(mal_x)
-    # print(mal_y)
-    recover_label_data(mal_y, 'cifar10')
+    mal_x, mal_y = mal_cifar10_enhance_synthesis(x_test.shape, 6)
+    print(mal_x.shape)
+    print(mal_y)
+    # recover_label_data(mal_y, 'cifar10')
     # show_data(x_test, 10)
     # print(y_test[0])
