@@ -6,9 +6,11 @@ import tensorflow as tf
 from cifar10_cnn_cap_defend import *
 from cifar10_cnn_cap_attack_enhance import *
 import os
+from mnist_fnn_linear_attack import *
+from mnist_cnn_linear_attack import *
 from cifar10_cnn import *
 
-# os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 if __name__ == '__main__':
 
@@ -17,11 +19,15 @@ if __name__ == '__main__':
     config = tf.compat.v1.ConfigProto(gpu_options=gpu_options)
     session = tf.compat.v1.Session(config=config)
     # mnist训练
-    # train_db, test_db = load_mnist_fnn()
-    # model, optimizer = build_mnist_fnn_model()
 
-    # 线性权重惩罚项攻击
-    # mnist_linear_attack_train(model, optimizer, train_db, x_test, y_test)
+
+    # mnist fnn 线性权重惩罚项攻击
+    model, optimizer = build_mnist_fnn_model()
+    mnist_linear_attack_train(model, optimizer)
+
+    # mnist cnn 线性权重惩罚项攻击
+    # model, optimizer = build_mnist_cnn_model()
+    # mnist_cap_cnn_train(model, optimizer)
 
     # 黑盒CAP攻击
     # mnist_cap_fnn_train(model, optimizer)
@@ -29,11 +35,7 @@ if __name__ == '__main__':
     # cifar10训练
     # train_db, test_db = load('cifar10')
 
-    conv_net, fc_net, optimizer2 = build_vgg13_model(0.0001)
+    # conv_net, fc_net, optimizer2 = build_vgg13_model(0.0001)
 
-    train_cifar10(conv_net, fc_net, optimizer2)
+    # train_cifar10(conv_net, fc_net, optimizer2)
     # cifar10_cnn_cap_enhance_attack(conv_net, fc_net, optimizer2)
-    # mnist cnn 训练
-    # train_db, test_db, mal_x = load('mnist')
-    # model, optimizer = build_mnist_cnn_model()
-    # mnist_cap_cnn_train(model, optimizer, train_db, test_db, mal_x)

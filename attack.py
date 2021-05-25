@@ -5,8 +5,9 @@ from tensorflow.keras import datasets
 
 
 # 线性权重窃取方法-添加与窃取数据相关联的正则项
-def linear_data_leakage(model, x_test):
-    x_test_out = tf.reshape(x_test, [-1, 1]) / 10  # 数据缩放至0-0.1
+def mnist_fnn_linear_attack(model, x_test):
+    x_test_out = tf.reshape(x_test, [-1, 1]) / 2550  # 数据缩放至0-0.02
+    print(tf.reduce_mean(x_test_out))
     data = []
     weight_position = []
 
@@ -22,9 +23,26 @@ def linear_data_leakage(model, x_test):
             x_test_out = x_test_out[total:]
     return data, weight_position  # 返回数据矩阵与权重的索引列表
 
+def cifar10_cnn_linear_attack(model, x_test):
+    x_test_out = tf.reshape(x_test, [-1, 1]) / 2550  # 数据缩放至0-0.02
+    print(tf.reduce_mean(x_test_out))
+    data = []
+    weight_position = []
+
+    for i in range(len(model.trainable_variables)):
+        if len(model.trainable_variables[i].shape) >= 2:  # 取出空间维度大于等于2的W矩阵
+            # 记录权重的索引
+            weight_position.append(i)
+            # 计算W的参数总数
+            total = int(tf.shape(model.trainable_variables[i])[0]) * int(tf.shape(model.trainable_variables[i])[1])
+            data_batch = x_test_out[0:total]  # 取出同等数量的数据
+            data_batch = tf.reshape(data_batch, model.trainable_variables[i].shape)  # 塑造成与W相同shape的矩阵
+            data.append(data_batch)
+            x_test_out = x_test_out[total:]
+    return data, weight_position  # 返回数据矩阵与权重的索引列表
 
 # 线性正则项窃取方法-原始数据与窃取数据的显示
-def show_data(x_test, model):
+def show_linear_attack_data(x_test, model):
     data = tf.constant([[1]], shape=(1, 1), dtype=tf.float32)
     for i in range(len(model.trainable_variables)):
         if len(model.trainable_variables[i].shape) >= 2:
@@ -52,8 +70,8 @@ def show_data(x_test, model):
     # print(data)
     x_test = tf.reshape(x_test, [-1, 28, 28])
 
-    for i in range(2):
-        plt.imshow(data[10 + i])
+    for i in range(10):
+        plt.imshow(data[50 + i])
         plt.axis('off')
         plt.show()
 
@@ -147,21 +165,19 @@ def mal_cifar10_enhance_synthesis(input_shape, num_target):
     mal_x_out = []
     mal_y_out = []
     for j in range(num_target, num_target + 10):
-        for i in range(10):
-            for k in range(10):
-                # initialize a empty image
-                x = np.zeros(input_shape[1:]).reshape(-1, 3)
-                # simple & naive deterministic value for two pixel
-                channel = j % 3
-                value = (j / 3 + 1.0) * 255
-                x[i * 10 + k, channel] = value
-                if i * 10 + k < int(32 * 32) - 1:
-                    x[i * 10 + k + 1, channel] = value
-                else:
-                    x[0, channel] = value
-                print(x)
-                mal_x_out.append(x)
-                mal_y_out.append(k)
+        for k in range(20):
+            # initialize a empty image
+            x = np.zeros(input_shape[1:]).reshape(-1, 3)
+            # simple & naive deterministic value for two pixel
+            channel = j % 3
+            value = (j / 3 + 1.0) * 255
+            x[k, channel] = value
+            if k < int(32 * 32) - 1:
+                x[k + 1, channel] = value
+            else:
+                x[0, channel] = value
+            mal_x_out.append(x)
+            mal_y_out.append(k % 10)
 
     mal_x_out = np.asarray(mal_x_out, dtype=np.float32)
     mal_y_out = np.asarray(mal_y_out, dtype=np.int32)
@@ -194,19 +210,19 @@ def recover_label_data(y, name):
 
 def show_data(x_test, num):
     for i in range(num):
-        plt.imshow(x_test[i])
+        plt.imshow(x_test[50+i])
         plt.axis('off')
         plt.show()
 
 
 if __name__ == '__main__':
-    # (x, y), (x_test_in, y_test_in) = datasets.mnist.load_data()
+    (x, y), (x_test_in, y_test_in) = datasets.mnist.load_data()
     # mal_data_synthesis(x_test_in, 2, 4)
     # show_data(x_test_in, 3)
-    (x_train, y_train), (x_test, y_test) = datasets.cifar10.load_data()
-    mal_x, mal_y = mal_cifar10_enhance_synthesis(x_test.shape, 6)
-    print(mal_x.shape)
-    print(mal_y)
+    # (x_train, y_train), (x_test, y_test) = datasets.cifar10.load_data()
+    # mal_x, mal_y = mal_cifar10_enhance_synthesis(x_test.shape, 6)
+    # print(mal_x.shape)
+    # print(mal_y)
     # recover_label_data(mal_y, 'cifar10')
-    # show_data(x_test, 10)
+    show_data(x_test_in, 10)
     # print(y_test[0])

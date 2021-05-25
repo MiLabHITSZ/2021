@@ -13,6 +13,13 @@ def preprocess_mnist(x_in, y_in):
     return x_in, y_in
 
 
+def preprocess_cifar10(x_in, y_in):
+    x_in = tf.cast(x_in, dtype=tf.float32) / 255
+    y_in = tf.cast(y_in, dtype=tf.int32)
+    y_in = tf.one_hot(y_in, depth=10)
+    return x_in, y_in
+
+
 def merge_mnist_fnn(x_train_in, y_train_in, x_test_in, y_test_in, x_mal_in, y_mal_in, epoch):
     x_train, y_train, x_test, y_test, x_mal, y_mal = x_train_in, y_train_in, x_test_in, y_test_in, x_mal_in, y_mal_in
 
@@ -38,13 +45,6 @@ def merge_mnist_fnn(x_train_in, y_train_in, x_test_in, y_test_in, x_mal_in, y_ma
     x_mal = tf.reshape(x_mal, [-1, 28 * 28])
 
     return train_db, test_db, x_mal, mapping
-
-
-def preprocess_cifar10(x_in, y_in):
-    x_in = tf.cast(x_in, dtype=tf.float32) / 255
-    y_in = tf.cast(y_in, dtype=tf.int32)
-    y_in = tf.one_hot(y_in, depth=10)
-    return x_in, y_in
 
 
 def load_mnist_fnn():

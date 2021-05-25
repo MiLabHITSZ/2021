@@ -18,7 +18,7 @@ def cifar10_cnn_cap_enhance_attack(conv_net, fc_net, optimizer):
     # 生成恶意数据2
     mal_x_enhance, mal_y_enhance = mal_cifar10_enhance_synthesis(x_test.shape, 6)
     print(mal_y_enhance)
-    epoch_list = [50]
+    epoch_list = [70]
     print(mal_x_out.shape)
 
     # 对合成的恶意数据进行拼接
@@ -90,7 +90,7 @@ def cifar10_cnn_cap_enhance_attack(conv_net, fc_net, optimizer):
         print(out)
         out_numpy = out.numpy()
         result = np.zeros((10, 10))
-        for i in range(1000):
+        for i in range(200):
             result[i % 10][out_numpy[i]] += 1
         print(result)
         np.save('result', result)

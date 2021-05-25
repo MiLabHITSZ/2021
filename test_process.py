@@ -33,7 +33,7 @@ def cifar10_cnn_test(conv_net, fc_net, test_db, name):
     elif name == 'mal':
         return total_correct/(2048*3)
     elif name == 'mal_enhance':
-        return total_correct / 1000
+        return total_correct / 200
 
 def mnist_cnn_test(model, test_db):
     total_correct_test = tf.constant(0, dtype=tf.int32)
