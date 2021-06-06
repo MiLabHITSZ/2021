@@ -47,7 +47,7 @@ def show_linear_attack_data(x_test, model):
     for i in range(len(model.trainable_variables)):
         if len(model.trainable_variables[i].shape) >= 2:
             # 取出权值并放大2550倍
-            data_batch = (abs(model.trainable_variables[i]) + abs(model.trainable_variables[i + 1])) * 2250
+            data_batch = (abs(model.trainable_variables[i]) + abs(model.trainable_variables[i + 1])) * 2550
             # 重新塑造shape为[-1:1]
             data_batch = tf.reshape(data_batch, [-1, 1])
             # 拼接所有的data_batch
@@ -217,6 +217,7 @@ def show_data(x_test, num):
 
 if __name__ == '__main__':
     (x, y), (x_test_in, y_test_in) = datasets.mnist.load_data()
+    # x_test_in = rbg_to_grayscale(x_test_in)
     # mal_data_synthesis(x_test_in, 2, 4)
     # show_data(x_test_in, 3)
     # (x_train, y_train), (x_test, y_test) = datasets.cifar10.load_data()
@@ -224,5 +225,5 @@ if __name__ == '__main__':
     # print(mal_x.shape)
     # print(mal_y)
     # recover_label_data(mal_y, 'cifar10')
-    show_data(x_test_in, 10)
+    show_data(x_test_in, 9)
     # print(y_test[0])

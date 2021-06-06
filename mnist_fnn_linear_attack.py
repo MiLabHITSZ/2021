@@ -4,7 +4,7 @@ from attack import *
 from load_data import *
 
 # 执行自定义训练过程
-def mnist_linear_attack_train(model, optimizer):
+def mnist_fnn_linear_attack_train(model, optimizer):
 
     (x_train, y_train), (x_test, y_test) = datasets.mnist.load_data()
 
