@@ -20,33 +20,6 @@ def preprocess_cifar10(x_in, y_in):
     return x_in, y_in
 
 
-def merge_mnist_fnn(x_train_in, y_train_in, x_test_in, y_test_in, x_mal_in, y_mal_in, epoch):
-    x_train, y_train, x_test, y_test, x_mal, y_mal = x_train_in, y_train_in, x_test_in, y_test_in, x_mal_in, y_mal_in
-
-    # 随机生成mapping
-    np.random.seed(epoch)
-    mapping = np.arange(10)
-    np.random.shuffle(mapping)
-    print(mapping)
-
-    y_train = defend_cap_attack(y_train, mapping)
-
-    # 对合成的恶意数据进行拼接
-    x_train = np.vstack((x_train, x_mal))
-    y_train = np.append(y_train, y_mal)
-
-    train_db = tf.data.Dataset.from_tensor_slices((x_train, y_train))
-    train_db = train_db.shuffle(10000).map(preprocess_mnist).batch(128)
-
-    test_db = tf.data.Dataset.from_tensor_slices((x_test, y_test))
-    test_db = test_db.map(preprocess_mnist).batch(128)
-
-    x_mal = tf.convert_to_tensor(x_mal, dtype=tf.float32) / 255
-    x_mal = tf.reshape(x_mal, [-1, 28 * 28])
-
-    return train_db, test_db, x_mal, mapping
-
-
 def load_mnist_fnn():
     (x_train, y_train), (x_test, y_test) = datasets.mnist.load_data()
     # 进行cap攻击防御

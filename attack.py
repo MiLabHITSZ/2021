@@ -23,6 +23,7 @@ def mnist_fnn_linear_attack(model, x_test):
             x_test_out = x_test_out[total:]
     return data, weight_position  # 返回数据矩阵与权重的索引列表
 
+
 def cifar10_cnn_linear_attack(model, x_test):
     x_test_out = tf.reshape(x_test, [-1, 1]) / 2550  # 数据缩放至0-0.02
     print(tf.reduce_mean(x_test_out))
@@ -40,6 +41,7 @@ def cifar10_cnn_linear_attack(model, x_test):
             data.append(data_batch)
             x_test_out = x_test_out[total:]
     return data, weight_position  # 返回数据矩阵与权重的索引列表
+
 
 # 线性正则项窃取方法-原始数据与窃取数据的显示
 def show_linear_attack_data(x_test, model):
@@ -97,7 +99,7 @@ def mal_mnist_fnn_synthesis(x_test, num_targets_in, precision):
 
             for k, b in enumerate(p_bits):
                 x = np.zeros(targets.shape[1:])
-                x[i] = (j * 10 + 1) * 255
+                x[i] = (j + 1) * 255
                 if i < len(targets[j]) - 1:
                     x[i + 1] = (k + 1) * 255
                 else:
@@ -188,6 +190,33 @@ def mal_cifar10_enhance_synthesis(input_shape, num_target):
     return mal_x_out, mal_y_out
 
 
+def mal_mnist_enhance_synthesis(input_shape, num_target, class_num):
+    num_target = int(num_target / 2)  # 算出可以窃取的像素数
+
+    mal_x_out = []
+    mal_y_out = []
+    for j in range(num_target, num_target + class_num):
+        for k in range(20):
+            # initialize a empty image
+            x = np.zeros(input_shape[1:]).flatten()
+            # simple & naive deterministic value for two pixel
+            x[k] = (j + 1) * 255
+            if k < int(32 * 32) - 1:
+                x[k + 1] = (j + 1) * 255
+            else:
+                x[0] = (j + 1) * 255
+            mal_x_out.append(x)
+            mal_y_out.append(k % 10)
+
+    mal_x_out = np.asarray(mal_x_out, dtype=np.float32)
+    mal_y_out = np.asarray(mal_y_out, dtype=np.int32)
+
+    shape = [-1] + list(input_shape[1:])
+    mal_x_out = mal_x_out.reshape(shape)
+
+    return mal_x_out, mal_y_out
+
+
 def recover_label_data(y, name):
     assert isinstance(y, np.ndarray)
     data = np.zeros(int(y.shape[0] / 2))
@@ -210,20 +239,30 @@ def recover_label_data(y, name):
 
 def show_data(x_test, num):
     for i in range(num):
-        plt.imshow(x_test[50+i])
+        plt.imshow(x_test[50 + i])
         plt.axis('off')
         plt.show()
 
 
 if __name__ == '__main__':
-    (x, y), (x_test_in, y_test_in) = datasets.mnist.load_data()
+    # cifar10 原始图片灰度展示
     # x_test_in = rbg_to_grayscale(x_test_in)
     # mal_data_synthesis(x_test_in, 2, 4)
     # show_data(x_test_in, 3)
+
+
+    # recover_label_data(mal_y, 'cifar10')
+    # show_data(x_test_in, 9)
+    # print(y_test[0])
+
+    # cifar10 恶意扩充数据集2测试
     # (x_train, y_train), (x_test, y_test) = datasets.cifar10.load_data()
     # mal_x, mal_y = mal_cifar10_enhance_synthesis(x_test.shape, 6)
     # print(mal_x.shape)
     # print(mal_y)
-    # recover_label_data(mal_y, 'cifar10')
-    show_data(x_test_in, 9)
-    # print(y_test[0])
+
+    # mnist 恶意扩充数据集2测试
+    (x_train, y_train), (x_test, y_test) = datasets.mnist.load_data()
+    mal_x, mal_y = mal_mnist_enhance_synthesis(x_test.shape, 6, 10)
+    print(mal_x.shape)
+    print(mal_y)

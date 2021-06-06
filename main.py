@@ -26,11 +26,12 @@ if __name__ == '__main__':
     # mnist_fnn_linear_attack_train(model, optimizer)
 
     # mnist cnn 线性权重惩罚项攻击
-    model, optimizer = build_mnist_cnn_model()
-    mnist_cnn_linear_attack_train(model, optimizer)
+    # model, optimizer = build_mnist_cnn_model()
+    # mnist_cnn_linear_attack_train(model, optimizer)
 
     # 黑盒CAP攻击
-    # mnist_cap_fnn_train(model, optimizer)
+    model, optimizer = build_mnist_fnn_model()
+    mnist_fnn_cap_attack_train(model, optimizer)
 
     # cifar10 cnn 线性权重惩罚项攻击
     # train_db, test_db = load('cifar10')
