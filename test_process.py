@@ -50,9 +50,8 @@ def mnist_cnn_test(model, test_db):
     return total_correct_test / 10000
 
 
-def test_mal(model, test_db, number):
+def test_mal(model, test_db, number, mal_name):
     total_correct_test = tf.constant(0, dtype=tf.int32)
-    MAPE = tf.constant(0, dtype=tf.float32)
     for (x, y) in test_db:
         out = model(x)
         out = tf.squeeze(out)
@@ -61,4 +60,7 @@ def test_mal(model, test_db, number):
         y = tf.cast(y, dtype=tf.int64)
         correct = tf.equal(pred, y)
         total_correct_test += tf.reduce_sum(tf.cast(correct, dtype=tf.int32))
-    return total_correct_test / (number * 784)
+    if mal_name == 'mal1':
+        return total_correct_test / (number * 784)
+    elif mal_name == 'mal2':
+        return total_correct_test / 200

@@ -13,9 +13,8 @@ def cifar10_cnn_cap_enhance_attack(conv_net, fc_net, optimizer):
 
     x_train, y_train, x_test, y_test = load_cifar10()
 
-    # 生成恶意数据1
+    # 生成恶意数据1、2
     mal_x_out, mal_y_out = mal_cifar10_synthesis(x_test, 6, 4)
-    # 生成恶意数据2
     mal_x_enhance, mal_y_enhance = mal_cifar10_enhance_synthesis(x_test.shape, 6)
     print(mal_y_enhance)
     epoch_list = [70]
@@ -41,6 +40,12 @@ def cifar10_cnn_cap_enhance_attack(conv_net, fc_net, optimizer):
     mal_x_enhance_db = tf.data.Dataset.from_tensor_slices((mal_x_enhance, mal_y_enhance))
     mal_x_enhance_db = mal_x_enhance_db.map(preprocess_cifar10).batch(128)
 
+    # 定义一系列的列表存储结果
+    acc_list = []
+    mal1_acc_list = []
+    mal2_acc_list = []
+    MAPE_list = []
+    cross_entropy_list = []
     for total_epoch in epoch_list:
         for epoch in range(total_epoch):
 
@@ -59,10 +64,15 @@ def cifar10_cnn_cap_enhance_attack(conv_net, fc_net, optimizer):
                 # 自动更新
                 optimizer.apply_gradients(zip(grads, variables))
                 loss += loss_batch
+            # 获取训练集、测试集、恶意扩充数据集1、2的准确率
             acc_train = cifar10_cnn_test(conv_net, fc_net, train_db, 'train_db')
             acc_test = cifar10_cnn_test(conv_net, fc_net, test_db, 'test_db')
             acc_mal_x = cifar10_cnn_test(conv_net, fc_net, mal_x_db, 'mal')
             acc_mal_x_enhance = cifar10_cnn_test(conv_net, fc_net, mal_x_enhance_db, 'mal_enhance')
+            acc_list.append(acc_test)
+            mal1_acc_list.append(acc_mal_x)
+            mal2_acc_list.append(acc_mal_x_enhance)
+
             print('epoch:', epoch, 'loss:', float(loss) * 128 / 50000, 'Evaluate Acc_train:', float(acc_train),
                   'Evaluate Acc_test', float(
                     acc_test), 'Evaluate Acc_mal:', float(acc_mal_x), 'Evaluate Acc_mal_enhance:',

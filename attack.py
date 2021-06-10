@@ -110,7 +110,6 @@ def mal_mnist_fnn_synthesis(x_test, num_targets_in, precision):
     mal_y_in = np.asarray(mal_y_in, dtype=np.int32)
     shape = [-1] + list(input_shape[1:])
     mal_x_in = mal_x_in.reshape(shape)
-    print(mal_y_in)
     return mal_x_in, mal_y_in
 
 

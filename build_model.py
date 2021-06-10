@@ -77,4 +77,5 @@ def build_mnist_cnn_model():
     model.add(Dense(1000, activation='relu'))
     model.add(Dense(10, activation='softmax'))
     optimizer = optimizers.RMSprop(lr=0.001, rho=0.9, epsilon=1e-08, decay=0.0)
+    # optimizer = optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
     return model, optimizer
