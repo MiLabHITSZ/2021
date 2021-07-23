@@ -6,23 +6,39 @@ from defend import *
 import math
 
 
-def cifar10_cnn_cap_enhance_attack(conv_net, fc_net, optimizer):
+def preprocess_cifar100(x_in, y_in):
+    x_in = tf.cast(x_in, dtype=tf.float32) / 255
+    y_in = tf.cast(y_in, dtype=tf.int32)
+    y_in = tf.one_hot(y_in, depth=100)
+    return x_in, y_in
+
+
+def load_cifar100():
+    (x_train, y_train), (x_test, y_test) = datasets.cifar100.load_data()
+    y_train = tf.squeeze(y_train, axis=1)
+    y_test = tf.squeeze(y_test, axis=1)
+    return x_train, y_train, x_test, y_test
+
+
+def cifar100_cnn_cap_trian(conv_net, fc_net, optimizer):
     conv_net.build(input_shape=[4, 32, 32, 3])
     fc_net.build(input_shape=[4, 512])
     # conv_net.summary()
     # fc_net.summary()
+    epoch_list = [100]
+    # 窃取图片的数量
     number = 20
-    x_train, y_train, x_test, y_test = load_cifar10()
+
+    # 读取训练数据集
+    x_train, y_train, x_test, y_test = load_cifar100()
+
+    # 转成灰度图像
+    # x_train_gray = rbg_to_grayscale(x_train)
+    # show_data(x_train_gray, 10)
 
     # 生成恶意数据1、2
     mal_x_out, mal_y_out = mal_cifar10_synthesis(x_train, number, 4)
-    mal_x_enhance, mal_y_enhance = mal_cifar10_enhance_synthesis(x_test.shape, number)
-
-    # 显示要窃取的数据
-    recover_label_data(mal_y_out, 'cifar10')
-
-    epoch_list = [200]
-
+    mal_x_enhance, mal_y_enhance = mal_cifar100_enhance_synthesis(x_test.shape, number)
     # 对合成的恶意数据进行拼接
     x_train_copy = np.vstack((x_train, mal_x_out, mal_x_enhance))
     y_train_copy = np.append(y_train, mal_y_out)
@@ -32,16 +48,16 @@ def cifar10_cnn_cap_enhance_attack(conv_net, fc_net, optimizer):
 
     # 对数据进行处理
     train_db = tf.data.Dataset.from_tensor_slices((x_train_copy, y_train_copy))
-    train_db = train_db.shuffle(10000).map(preprocess_cifar10).batch(128)
+    train_db = train_db.shuffle(10000).map(preprocess_cifar100).batch(128)
 
     test_db = tf.data.Dataset.from_tensor_slices((x_test, y_test))
-    test_db = test_db.map(preprocess_cifar10).batch(128)
+    test_db = test_db.map(preprocess_cifar100).batch(128)
 
     mal_x_db = tf.data.Dataset.from_tensor_slices((mal_x_out, mal_y_out))
-    mal_x_db = mal_x_db.map(preprocess_cifar10).batch(128)
+    mal_x_db = mal_x_db.map(preprocess_cifar100).batch(128)
 
     mal_x_enhance_db = tf.data.Dataset.from_tensor_slices((mal_x_enhance, mal_y_enhance))
-    mal_x_enhance_db = mal_x_enhance_db.map(preprocess_cifar10).batch(128)
+    mal_x_enhance_db = mal_x_enhance_db.map(preprocess_cifar100).batch(128)
 
     mal_x_enhance = tf.convert_to_tensor(mal_x_enhance, dtype=tf.float32) / 255
 
@@ -51,28 +67,30 @@ def cifar10_cnn_cap_enhance_attack(conv_net, fc_net, optimizer):
     mal2_acc_list = []
     MAPE_list = []
     cross_entropy_list = []
+
     for total_epoch in epoch_list:
         for epoch in range(total_epoch):
+
             loss = tf.constant(0, dtype=tf.float32)
-            for step, (x_batch, y_batch) in enumerate(train_db):
+            for step, (x_batch, y_batch) in enumerate(mal_x_enhance_db):
                 with tf.GradientTape() as tape:
                     out1 = conv_net(x_batch, training=True)
                     out = fc_net(out1, training=True)
                     out = tf.squeeze(out, axis=[1, 2])
-
                     loss_batch = tf.reduce_mean(keras.losses.categorical_crossentropy(y_batch, out, from_logits=True))
-                # 列表合并，合并2个自网络的参数
+                # 列表合并，合并2个网络的参数
                 variables = conv_net.trainable_variables + fc_net.trainable_variables
                 # 对所有参数求梯度
                 grads = tape.gradient(loss_batch, variables)
                 # 自动更新
                 optimizer.apply_gradients(zip(grads, variables))
                 loss += loss_batch
+
             # 获取训练集、测试集、恶意扩充数据集1、2的准确率
-            acc_train = cifar10_cnn_test(conv_net, fc_net, train_db, 'train_db')
-            acc_test = cifar10_cnn_test(conv_net, fc_net, test_db, 'test_db')
-            acc_mal_x = cifar10_cnn_test(conv_net, fc_net, mal_x_db, 'mal')
-            acc_mal_x_enhance = cifar10_cnn_test(conv_net, fc_net, mal_x_enhance_db, 'mal_enhance')
+            acc_train = cifar100_cnn_test(conv_net, fc_net, train_db, 'train_db')
+            acc_test = cifar100_cnn_test(conv_net, fc_net, test_db, 'test_db')
+            acc_mal_x = cifar100_cnn_test(conv_net, fc_net, mal_x_db, 'mal')
+            acc_mal_x_enhance = cifar100_cnn_test(conv_net, fc_net, mal_x_enhance_db, 'mal_enhance')
             acc_list.append(float(acc_test))
             mal1_acc_list.append(float(acc_mal_x))
             mal2_acc_list.append(float(acc_mal_x_enhance))
@@ -105,13 +123,13 @@ def cifar10_cnn_cap_enhance_attack(conv_net, fc_net, optimizer):
             out = tf.squeeze(out, axis=[1, 2])
             out = tf.argmax(out, axis=1)
             out_numpy = out.numpy()
-            result = np.zeros((10, 10))
-            for i in range(200):
-                result[i % 10][out_numpy[i]] += 1
+            result = np.zeros((100, 100))
+            for i in range(2000):
+                result[i % 100][out_numpy[i]] += 1
             result = result / 20
             cross_entropy = 0
-            for i in range(10):
-                for j in range(10):
+            for i in range(100):
+                for j in range(100):
                     if result[i][j] != 0:
                         cross_entropy += -result[i][j] * math.log(result[i][j])
             cross_entropy_list.append(cross_entropy)
@@ -161,10 +179,10 @@ def cifar10_cnn_cap_enhance_attack(conv_net, fc_net, optimizer):
         out = fc_net(out1, training=True)
         out = tf.squeeze(out, axis=[1, 2])
         out = tf.argmax(out, axis=1)
-        print(out)
+
         out_numpy = out.numpy()
-        result = np.zeros((10, 10))
-        for i in range(200):
-            result[i % 10][out_numpy[i]] += 1
+        result = np.zeros((100, 100))
+        for i in range(2000):
+            result[i % 100][out_numpy[i]] += 1
         print(result)
-        np.save('result', result)
+        np.save('Cifar100result', result)

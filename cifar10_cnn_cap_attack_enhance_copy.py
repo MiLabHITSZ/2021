@@ -5,8 +5,7 @@ from load_data import *
 from defend import *
 import math
 
-
-def cifar10_cnn_cap_enhance_attack(conv_net, fc_net, optimizer):
+def cifar10_cnn_cap_enhance_attack_copy(conv_net, fc_net, optimizer):
     conv_net.build(input_shape=[4, 32, 32, 3])
     fc_net.build(input_shape=[4, 512])
     # conv_net.summary()
@@ -17,11 +16,9 @@ def cifar10_cnn_cap_enhance_attack(conv_net, fc_net, optimizer):
     # 生成恶意数据1、2
     mal_x_out, mal_y_out = mal_cifar10_synthesis(x_train, number, 4)
     mal_x_enhance, mal_y_enhance = mal_cifar10_enhance_synthesis(x_test.shape, number)
-
-    # 显示要窃取的数据
-    recover_label_data(mal_y_out, 'cifar10')
-
-    epoch_list = [200]
+    print(mal_y_enhance)
+    epoch_list = [1000]
+    print(mal_x_out.shape)
 
     # 对合成的恶意数据进行拼接
     x_train_copy = np.vstack((x_train, mal_x_out, mal_x_enhance))
@@ -54,7 +51,7 @@ def cifar10_cnn_cap_enhance_attack(conv_net, fc_net, optimizer):
     for total_epoch in epoch_list:
         for epoch in range(total_epoch):
             loss = tf.constant(0, dtype=tf.float32)
-            for step, (x_batch, y_batch) in enumerate(train_db):
+            for step, (x_batch, y_batch) in enumerate(mal_x_enhance_db):
                 with tf.GradientTape() as tape:
                     out1 = conv_net(x_batch, training=True)
                     out = fc_net(out1, training=True)
@@ -69,57 +66,59 @@ def cifar10_cnn_cap_enhance_attack(conv_net, fc_net, optimizer):
                 optimizer.apply_gradients(zip(grads, variables))
                 loss += loss_batch
             # 获取训练集、测试集、恶意扩充数据集1、2的准确率
-            acc_train = cifar10_cnn_test(conv_net, fc_net, train_db, 'train_db')
-            acc_test = cifar10_cnn_test(conv_net, fc_net, test_db, 'test_db')
-            acc_mal_x = cifar10_cnn_test(conv_net, fc_net, mal_x_db, 'mal')
+            # acc_train = cifar10_cnn_test(conv_net, fc_net, train_db, 'train_db')
+            # acc_test = cifar10_cnn_test(conv_net, fc_net, test_db, 'test_db')
+            # acc_mal_x = cifar10_cnn_test(conv_net, fc_net, mal_x_db, 'mal')
             acc_mal_x_enhance = cifar10_cnn_test(conv_net, fc_net, mal_x_enhance_db, 'mal_enhance')
-            acc_list.append(float(acc_test))
-            mal1_acc_list.append(float(acc_mal_x))
-            mal2_acc_list.append(float(acc_mal_x_enhance))
+            # acc_list.append(float(acc_test))
+            # mal1_acc_list.append(float(acc_mal_x))
+            # mal2_acc_list.append(float(acc_mal_x_enhance))
+            print(acc_mal_x_enhance)
+
 
             # 计算MAPE
-            x_train_gray = rbg_to_grayscale(x_train)
-            pred = tf.constant([0], dtype=tf.int64)
-            for (mal_x_batch, mal_y_batch) in mal_x_db:
-                out1 = conv_net(mal_x_batch, training=True)
-                out = fc_net(out1, training=True)
-                out = tf.squeeze(out, axis=[1, 2])
-                out = tf.argmax(out, axis=1)
-                pred = tf.concat([pred, out], axis=0)
-            pred = pred[1:]
-            data = np.zeros(int(pred.shape[0] / 2))
-            for i in range(len(data)):
-                data[i] = pred[2 * i] + pred[2 * i + 1]
-                data[i] = data[i] * (2 ** 4)
-                if data[i] > 255:
-                    data[i] = 255
-            x_train_gray = x_train_gray.flatten()
-            x_train_gray = x_train_gray[0:data.shape[0]]
-            assert x_train_gray.shape == data.shape
-            MAPE = np.mean(np.abs(x_train_gray - data))
-            MAPE_list.append(MAPE)
+            # x_train_gray = rbg_to_grayscale(x_train)
+            # pred = tf.constant([0], dtype=tf.int64)
+            # for (mal_x_batch, mal_y_batch) in mal_x_db:
+            #     out1 = conv_net(mal_x_batch, training=True)
+            #     out = fc_net(out1, training=True)
+            #     out = tf.squeeze(out, axis=[1, 2])
+            #     out = tf.argmax(out, axis=1)
+            #     pred = tf.concat([pred, out], axis=0)
+            # pred = pred[1:]
+            # data = np.zeros(int(pred.shape[0] / 2))
+            # for i in range(len(data)):
+            #     data[i] = pred[2 * i] + pred[2 * i + 1]
+            #     data[i] = data[i] * (2 ** 4)
+            #     if data[i] > 255:
+            #         data[i] = 255
+            # x_train_gray = x_train_gray.flatten()
+            # x_train_gray = x_train_gray[0:data.shape[0]]
+            # assert x_train_gray.shape == data.shape
+            # MAPE = np.mean(np.abs(x_train_gray - data))
+            # MAPE_list.append(MAPE)
 
             # 计算平均交叉熵
-            out1 = conv_net(mal_x_enhance, training=True)
-            out = fc_net(out1, training=True)
-            out = tf.squeeze(out, axis=[1, 2])
-            out = tf.argmax(out, axis=1)
-            out_numpy = out.numpy()
-            result = np.zeros((10, 10))
-            for i in range(200):
-                result[i % 10][out_numpy[i]] += 1
-            result = result / 20
-            cross_entropy = 0
-            for i in range(10):
-                for j in range(10):
-                    if result[i][j] != 0:
-                        cross_entropy += -result[i][j] * math.log(result[i][j])
-            cross_entropy_list.append(cross_entropy)
-
-            print('epoch:', epoch, 'loss:', float(loss) * 128 / 50000, 'Evaluate Acc_train:', float(acc_train),
-                  'Evaluate Acc_test', float(
-                    acc_test), 'Evaluate Acc_mal:', float(acc_mal_x), 'Evaluate Acc_mal_enhance:',
-                  float(acc_mal_x_enhance), 'MAPE', float(MAPE), 'cross_entropy', float(cross_entropy))
+            # out1 = conv_net(mal_x_enhance, training=True)
+            # out = fc_net(out1, training=True)
+            # out = tf.squeeze(out, axis=[1, 2])
+            # out = tf.argmax(out, axis=1)
+            # out_numpy = out.numpy()
+            # result = np.zeros((10, 10))
+            # for i in range(200):
+            #     result[i % 10][out_numpy[i]] += 1
+            # result = result / 20
+            # cross_entropy = 0
+            # for i in range(10):
+            #     for j in range(10):
+            #         if result[i][j] != 0:
+            #             cross_entropy += -result[i][j] * math.log(result[i][j])
+            # cross_entropy_list.append(cross_entropy)
+            #
+            # print('epoch:', epoch, 'loss:', float(loss) * 128 / 50000, 'Evaluate Acc_train:', float(acc_train),
+            #       'Evaluate Acc_test', float(
+            #         acc_test), 'Evaluate Acc_mal:', float(acc_mal_x), 'Evaluate Acc_mal_enhance:',
+            #       float(acc_mal_x_enhance), 'MAPE', float(MAPE), 'cross_entropy',float(cross_entropy))
 
         # 展示测试集、扩充数据集1、扩充数据集2的准确率
         plt.figure()

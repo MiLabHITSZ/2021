@@ -188,6 +188,33 @@ def mal_cifar10_enhance_synthesis(input_shape, num_target):
 
     return mal_x_out, mal_y_out
 
+def mal_cifar100_enhance_synthesis(input_shape, num_target):
+    num_target = int(num_target / 2)  # 算出可以窃取的像素数
+
+    mal_x_out = []
+    mal_y_out = []
+    for j in range(num_target, num_target + 20):
+        for k in range(100):
+            # initialize a empty image
+            x = np.zeros(input_shape[1:]).reshape(-1, 3)
+            # simple & naive deterministic value for two pixel
+            channel = j % 3
+            value = (j / 3 + 1.0) * 255
+            x[k, channel] = value
+            if k < int(32 * 32) - 1:
+                x[k + 1, channel] = value
+            else:
+                x[0, channel] = value
+            mal_x_out.append(x)
+            mal_y_out.append(k)
+
+    mal_x_out = np.asarray(mal_x_out, dtype=np.float32)
+    mal_y_out = np.asarray(mal_y_out, dtype=np.int32)
+
+    shape = [-1] + list(input_shape[1:])
+    mal_x_out = mal_x_out.reshape(shape)
+
+    return mal_x_out, mal_y_out
 
 def mal_mnist_enhance_synthesis(input_shape, num_target, class_num):
     num_target = int(num_target / 2)  # 算出可以窃取的像素数
@@ -238,16 +265,17 @@ def recover_label_data(y, name):
 
 def show_data(x_test, num):
     for i in range(num):
-        plt.imshow(x_test[50 + i])
+        plt.imshow(x_test[i], cmap='gray')
         plt.axis('off')
         plt.show()
 
 
 if __name__ == '__main__':
     # cifar10 原始图片灰度展示
-    # x_test_in = rbg_to_grayscale(x_test_in)
-    # mal_data_synthesis(x_test_in, 2, 4)
-    # show_data(x_test_in, 3)
+    (x_train, y_train), (x_test, y_test) = datasets.cifar10.load_data()
+    x_test_in = rbg_to_grayscale(x_train)
+    # mal_data_synthesis(x_test_in, 20, 4)
+    show_data(x_test_in, 10)
 
 
     # recover_label_data(mal_y, 'cifar10')
@@ -261,7 +289,7 @@ if __name__ == '__main__':
     # print(mal_y)
 
     # mnist 恶意扩充数据集2测试
-    (x_train, y_train), (x_test, y_test) = datasets.mnist.load_data()
-    mal_x, mal_y = mal_mnist_enhance_synthesis(x_test.shape, 6, 10)
-    print(mal_x.shape)
-    print(mal_y)
+    # (x_train, y_train), (x_test, y_test) = datasets.mnist.load_data()
+    # mal_x, mal_y = mal_mnist_enhance_synthesis(x_test.shape, 6, 10)
+    # print(mal_x.shape)
+    # print(mal_y)

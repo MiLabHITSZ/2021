@@ -16,12 +16,12 @@ def data_write_csv(file_name, datas):  # file_name为写入CSV文件的路径，
     print("保存文件成功，处理结束")
 
 # 执行自定义训练过程
-def mnist_fnn_cap_attack_train(model, optimizer):
+def fashion_mnist_fnn_cap_attack_train(model, optimizer):
     # 初始化模型
     model.build(input_shape=[128, 784])
     number = 20
     total_epoch = 0
-    (x_train, y_train), (x_test, y_test) = datasets.mnist.load_data()
+    (x_train, y_train), (x_test, y_test) = datasets.fashion_mnist.load_data()
     # 合成恶意数据进行CAP攻击
     x_mal1, y_mal1 = mal_mnist_fnn_synthesis(x_train, number, 4)
     x_mal2, y_mal2 = mal_mnist_enhance_synthesis(x_train.shape, number, 10)

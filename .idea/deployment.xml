@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" serverName="zlc@10.250.36.68:22 password" remoteFilesAllowedToDisappearOnAutoupload="false">
+  <component name="PublishConfigData" autoUpload="Always" serverName="zlc@10.250.88.93:8333 password" remoteFilesAllowedToDisappearOnAutoupload="false">
     <serverData>
-      <paths name="zlc@10.250.36.68:22 password">
+      <paths name="zlc@10.250.88.93:8333 password">
         <serverdata>
           <mappings>
-            <mapping deploy="/home/zlc/pycharm_project" local="$PROJECT_DIR$" />
+            <mapping deploy="/home/zlc/NoLabelCap" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="zlczlc">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/zlc/NoLabelCap" local="$PROJECT_DIR$" web="/" />
           </mappings>
         </serverdata>
       </paths>
