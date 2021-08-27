@@ -4,7 +4,7 @@
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/venv" />
     </content>
-    <orderEntry type="jdk" jdkName="Remote Python 3.8.8 (sftp://zlc@10.250.88.93:8333/home/zlc/.conda/envs/tensorflow1/bin/python3.8)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Remote Python 3.8.8 (sftp://zlc@10.250.232.44:8444/home/zlc/.conda/envs/tensorflow1/bin/python3.8)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>

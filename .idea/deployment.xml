@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" serverName="zlc@10.250.88.93:8333 password" remoteFilesAllowedToDisappearOnAutoupload="false">
+  <component name="PublishConfigData" autoUpload="Always" serverName="zlc@10.250.232.44:8444 password" remoteFilesAllowedToDisappearOnAutoupload="false">
     <serverData>
-      <paths name="zlc@10.250.88.93:8333 password">
+      <paths name="zlc@10.250.232.44:8444 password">
         <serverdata>
           <mappings>
             <mapping deploy="/home/zlc/NoLabelCap" local="$PROJECT_DIR$" />
           </mappings>
         </serverdata>
       </paths>
-      <paths name="zlczlc">
+      <paths name="zlc@10.250.88.93:8333 password">
         <serverdata>
           <mappings>
-            <mapping deploy="/home/zlc/NoLabelCap" local="$PROJECT_DIR$" web="/" />
+            <mapping deploy="/home/zlc/NoLabelCap" local="$PROJECT_DIR$" />
           </mappings>
         </serverdata>
       </paths>

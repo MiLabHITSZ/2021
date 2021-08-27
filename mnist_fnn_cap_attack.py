@@ -3,10 +3,13 @@ from test_process import *
 from attack import *
 from defend import *
 from tensorflow.keras import datasets
+from encoding import *
 from load_data import *
 import math
 import csv
 import codecs
+from decoding import *
+from draw_picture import *
 
 def data_write_csv(file_name, datas):  # file_name为写入CSV文件的路径，datas为要写入数据列表
     file_csv = codecs.open(file_name, 'w+', 'utf-8')  # 追加
@@ -15,21 +18,26 @@ def data_write_csv(file_name, datas):  # file_name为写入CSV文件的路径，
         writer.writerow(data)
     print("保存文件成功，处理结束")
 
+
 # 执行自定义训练过程
 def mnist_fnn_cap_attack_train(model, optimizer):
     # 初始化模型
     model.build(input_shape=[128, 784])
+
+    # 设置窃取的图片数和训练轮数
     number = 20
     total_epoch = 0
+
+    # 加载训练集和测试集
     (x_train, y_train), (x_test, y_test) = datasets.mnist.load_data()
+
     # 合成恶意数据进行CAP攻击
     x_mal1, y_mal1 = mal_mnist_fnn_synthesis(x_train, number, 4)
     x_mal2, y_mal2 = mal_mnist_enhance_synthesis(x_train.shape, number, 10)
 
     # 展示原始结果
-    recover_label_data(y_mal1, 'mnist')
+    # recover_label_data(y_mal1, 'mnist')
 
-    print(x_mal1.shape)
     # 对合成的恶意数据进行拼接
     x_train = np.vstack((x_train, x_mal1, x_mal2))
     y_train = np.append(y_train, y_mal1)
@@ -37,7 +45,7 @@ def mnist_fnn_cap_attack_train(model, optimizer):
     print(x_train.shape)
     print(y_train.shape)
 
-    # 对训练集、测试集、恶意扩充数据集1、2进行预处理，获取其准确率
+    # 对训练集、测试集、恶意扩充数据集1、2进行预处理，以便后续获取其准确率
     train_db = tf.data.Dataset.from_tensor_slices((x_train, y_train))
     train_db = train_db.shuffle(10000).map(preprocess_mnist).batch(128)
 
@@ -61,6 +69,7 @@ def mnist_fnn_cap_attack_train(model, optimizer):
     mal2_acc_list = []
     MAPE_list = []
     cross_entropy_list = []
+
     # 执行训练过程
     for epoch in range(1000):
         total_epoch += 1
@@ -109,56 +118,78 @@ def mnist_fnn_cap_attack_train(model, optimizer):
         result = np.zeros((10, 10))
         for i in range(200):
             result[i % 10][out_numpy[i]] += 1
-        result = result/20
+        result = result / 20
         cross_entropy = 0
         for i in range(10):
             for j in range(10):
                 if result[i][j] != 0:
-                    cross_entropy += -result[i][j]*math.log(result[i][j])
+                    cross_entropy += -result[i][j] * math.log(result[i][j])
         cross_entropy_list.append(cross_entropy)
         print('epoch:', epoch, 'loss:', loss_print, 'Evaluate Test Acc:', float(acc), 'Evaluate mal1 Acc:',
-              float(mal1_acc), 'Evaluate mal2 Acc:', float(mal2_acc), 'MAPE:', float(MAPE), 'Mean_cross_entropy', float(cross_entropy))
+              float(mal1_acc), 'Evaluate mal2 Acc:', float(mal2_acc), 'MAPE:', float(MAPE), 'Mean_cross_entropy',
+              float(cross_entropy))
         # 训练停止条件
-        if float(mal1_acc) > 0.995:
+        if float(mal1_acc) > 0.998:
             break
+    # 保存结果
+    np.save('mnist_acc', np.array(acc_list))
+    np.save('mnist_mal1_acc', np.array(mal1_acc_list))
+    np.save('mnist_mal2_acc', np.array(mal2_acc_list))
+    np.save('mnist_mape', np.array(MAPE_list))
+    np.save('mnist_cross_entropy', np.array(cross_entropy_list))
 
-    # 展示扩充数据集1的窃取效果
-    mal_y_pred = model(x_mal1)
-    pred = tf.argmax(mal_y_pred, axis=1)
-    recover_label_data(pred.numpy(), 'mnist')
-
-    # 展示恶意扩充数据集2的窃取结果
+    # 输入恶意扩充集2并得到预测标签编码
     mal2_pred = model(x_mal2, training=True)
     out = tf.argmax(mal2_pred, axis=1)
     out_numpy = out.numpy()
-    result = np.zeros((10, 10))
-    for i in range(200):
-        result[i % 10][out_numpy[i]] += 1
-    np.save('result', result)
 
+    # 将恶意扩充集2的预测标签编码根据对应关系转成数据持有者指定的编码
+    mal2_encode = encoding_mapping(out_numpy)
+    print(mal2_encode)
+    # 攻击者获取数据持有者指定的编码与标签编码的对应关系
+    relation = recover(mal2_encode)
+
+    # 输入扩充数据集1并得到编码
+    mal_y_pred = model(x_mal1)
+    pred = tf.argmax(mal_y_pred, axis=1)
+
+    # 将恶意扩充集1的预测标签编码根据对应关系转成数据持有者指定的编码
+    mal1_encode = encoding_mapping(pred.numpy())
+
+    # 利用对应关系将恶意扩充集1的指定编码转成预测标签编码
+    mal1_decode = []
+    for i in mal1_encode:
+        mal1_decode.append(relation[i])
+    mal1_decode = np.array(mal1_decode)
+    np.save('mnist_stolen_data', mal1_decode)
+
+    # 根据获得的对应关系将恶意扩充集1的编码转成预测标签编码
+    recover_label_data(mal1_decode, 'mnist')
+
+    draw(total_epoch, acc_list, mal1_acc_list, mal2_acc_list, MAPE_list, cross_entropy_list)
     # 展示测试集、扩充数据集1、扩充数据集2的准确率
-    plt.figure()
-    X = np.arange(0, total_epoch)
-    plt.plot(X, acc_list, label="test accuracy", linestyle=":")
-    plt.plot(X, mal1_acc_list, label="mal1 accuracy", linestyle="--")
-    plt.plot(X, mal2_acc_list, label="mal2 accuracy", linestyle="-.")
-    plt.legend()
-    plt.title("Accuracy distribution")
-    plt.xlabel("epoch")
-    plt.ylabel("accuracy")
-    plt.show()
-    plt.close()
+    # plt.figure()
+    # X = np.arange(0, total_epoch)
+    # plt.plot(X, acc_list, label="test accuracy", linestyle=":")
+    # plt.plot(X, mal1_acc_list, label="mal1 accuracy", linestyle="--")
+    # plt.plot(X, mal2_acc_list, label="mal2 accuracy", linestyle="-.")
+    # plt.legend()
+    # plt.title("Accuracy distribution")
+    # plt.xlabel("epoch")
+    # plt.ylabel("accuracy")
+    # plt.show()
+    # plt.close()
 
     # 展示MAPE 平均交叉熵变化
-    plt.figure()
-    X = np.arange(0, total_epoch)
-    plt.plot(X, MAPE_list, label="MAPE", linestyle=":")
-    plt.plot(X, cross_entropy_list, label="cross entropy", linestyle="--")
-    plt.legend()
-    plt.title("MAPE and Cross entropy distribution")
-    plt.xlabel("epoch")
-    plt.ylabel("VALUE")
-    plt.show()
+    # plt.figure()
+    # X = np.arange(0, total_epoch)
+    # plt.plot(X, MAPE_list, label="MAPE", linestyle=":")
+    # plt.plot(X, cross_entropy_list, label="cross entropy", linestyle="--")
+    # plt.legend()
+    # plt.title("MAPE and Cross entropy distribution")
+    # plt.xlabel("epoch")
+    # plt.ylabel("VALUE")
+    # plt.show()
 
     # 展示结果
     # plt.plot(loss_list)
