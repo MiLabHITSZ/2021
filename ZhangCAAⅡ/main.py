@@ -1,5 +1,4 @@
 from build_model import *
-from cifar10_cnn_CAA import *
 import os
 from mnist_fnn_CAAII import *
 import tensorflow as tf
@@ -12,7 +11,6 @@ from cifar10_cnn_baseline import *
 
 if __name__ == '__main__':
 
-    tf.random.set_seed(999)
     # gpu_options = tf.compat.v1.GPUOptions(per_process_gpu_memory_fraction=0.7)
     # config = tf.compat.v1.ConfigProto(gpu_options=gpu_options)
     # session = tf.compat.v1.Session(config=config)
