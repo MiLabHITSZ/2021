@@ -20,8 +20,8 @@ def cifar10_cnn_baseline_trian(conv_net, fc_net, optimizer):
     test_db = tf.data.Dataset.from_tensor_slices((x_test, y_test))
     test_db = test_db.map(preprocess_cifar10).batch(128)
 
-    epoch_list = [30]
-
+    epoch_list = [200]
+    acc_list = []
     for total_epoch in epoch_list:
         for epoch in range(total_epoch):
 
@@ -42,5 +42,7 @@ def cifar10_cnn_baseline_trian(conv_net, fc_net, optimizer):
                 loss += loss_batch
             acc_train = cifar10_cnn_test(conv_net, fc_net, train_db, 'train_db')
             acc_test = cifar10_cnn_test(conv_net, fc_net, test_db, 'test_db')
+            acc_list.append(float(acc_test))
             print('epoch:', epoch, 'loss:', float(loss)*128/50000, 'Evaluate Acc_train:', float(acc_train), 'Evaluate Acc_test', float(
                 acc_test))
+        np.save('cifar10_test_acc_baseline', np.array(acc_list))

@@ -1,20 +1,14 @@
 from build_model import *
-from cifar10_cnn_cap_attack import *
+from cifar10_cnn_CAA import *
 import os
-from mnist_cnn_cap_attack import *
-from mnist_fnn_cap_attack import *
+from mnist_fnn_CAAII import *
 import tensorflow as tf
-from cifar10_cnn_cap_defend import *
-from cifar10_cnn_cap_attack_enhance import *
-from mnist_fnn_linear_attack import *
-from mnist_cnn_linear_attack import *
-from cifar10_cnn_linear_attack import *
-from mnist_fnn_cap_attack import *
-from cifar100_cnn_cap_attack_enhance import *
-from Cifar100_baseline import *
+from cifar10_cnn_CAAII import *
 os.environ["CUDA_VISIBLE_DEVICES"] = "5"
-from cifar10_cnn_cap_attack_enhance_copy import *
-from fashion_mnist_fnn_cap_attack import *
+from fashion_mnist_fnn_CAAII import *
+from mnist_fnn_baseline import *
+from fashion_mnist_fnn_baseline import *
+from cifar10_cnn_baseline import *
 
 if __name__ == '__main__':
 
@@ -23,18 +17,10 @@ if __name__ == '__main__':
     # config = tf.compat.v1.ConfigProto(gpu_options=gpu_options)
     # session = tf.compat.v1.Session(config=config)
 
-    # mnist fnn 线性权重惩罚项攻击
-    # model, optimizer = build_mnist_fnn_model()
-    # mnist_fnn_linear_attack_train(model, optimizer)
-
-    # mnist cnn 线性权重惩罚项攻击
-    # model, optimizer = build_mnist_cnn_model()
-    # mnist_cnn_linear_attack_train(model, optimizer)
-
     # mnist fnn 黑盒CAP增强攻击
-    model, optimizer = build_mnist_fnn_model()
-    mnist_fnn_cap_attack_train(model, optimizer)
-
+    # model, optimizer = build_mnist_fnn_model()
+    # mnist_fnn_cap_attack_train(model, optimizer)
+    # mnist_fnn_baseline(model, optimizer)
     # mnist cnn 黑盒CAP增强攻击
     # conv_net, fc_net, optimizer2 = build_vgg13_model(0.0001)
     # model, optimizer = build_mnist_cnn_model()
@@ -45,8 +31,9 @@ if __name__ == '__main__':
     # cifar10_cnn_linear_attack_train(conv_net, fc_net, optimizer2)
 
     # cifar10 cnn cap 攻击
-    # conv_net, fc_net, optimizer2 = build_vgg13_model(0.0001)
-    # cifar10_cnn_cap_enhance_attack(conv_net, fc_net, optimizer2)
+    conv_net, fc_net, optimizer2 = build_vgg13_model(0.0001)
+    cifar10_cnn_cap_enhance_attack(conv_net, fc_net, optimizer2)
+    # cifar10_cnn_baseline_trian(conv_net, fc_net, optimizer2)
 
     # cifar100 cnn 黑盒CAP增强攻击
     # conv_net, fc_net, optimizer2 = build_vgg13_for_cifar100_model(0.0001)
@@ -55,3 +42,4 @@ if __name__ == '__main__':
     # fashion mnist cnn 黑盒CAP增强攻击
     # model, optimizer = build_mnist_fnn_model()
     # fashion_mnist_fnn_cap_attack_train(model, optimizer)
+    # fashion_mnist_fnn_baseline(model, optimizer)
