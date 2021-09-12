@@ -23,23 +23,11 @@ if __name__ == '__main__':
     # model, optimizer = build_mnist_fnn_model()
     # mnist_fnn_cap_attack_train(model, optimizer)
     # mnist_fnn_baseline(model, optimizer)
-    # mnist cnn 黑盒CAP增强攻击
-    # conv_net, fc_net, optimizer2 = build_vgg13_model(0.0001)
-    # model, optimizer = build_mnist_cnn_model()
-    # mnist_cnn_cap_train(conv_net, fc_net, optimizer2)
-
-    # cifar10 cnn 线性权重惩罚项攻击
-    # train_db, test_db = load('cifar10')
-    # cifar10_cnn_linear_attack_train(conv_net, fc_net, optimizer2)
 
     # cifar10 cnn cap 攻击
     conv_net, fc_net, optimizer2 = build_vgg13_model(0.0001)
     cifar10_cnn_cap_enhance_attack(conv_net, fc_net, optimizer2)
     # cifar10_cnn_baseline_trian(conv_net, fc_net, optimizer2)
-
-    # cifar100 cnn 黑盒CAP增强攻击
-    # conv_net, fc_net, optimizer2 = build_vgg13_for_cifar100_model(0.0001)
-    # cifar100_cnn_cap_trian(conv_net, fc_net, optimizer2)
 
     # fashion mnist cnn 黑盒CAP增强攻击
     # model, optimizer = build_mnist_fnn_model()
