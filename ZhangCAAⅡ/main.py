@@ -1,8 +1,13 @@
+# Author: Wenjian Luo, Licai Zhang, Yulin Wu, Chuanyi Liu, Peiyi Han, Rongfei Zhuang
+# Title: Capacity Abuse Attack with no Need of Label Encodings
+# This paper is commited to IEEE Transactions on Neural Networks and Learning Systems
+
 from build_model import *
 import os
 from mnist_fnn_CAAII import *
 import tensorflow as tf
 from cifar10_cnn_CAAII import *
+
 os.environ["CUDA_VISIBLE_DEVICES"] = "5"
 from fashion_mnist_fnn_CAAII import *
 from mnist_fnn_baseline import *
@@ -10,7 +15,6 @@ from fashion_mnist_fnn_baseline import *
 from cifar10_cnn_baseline import *
 
 if __name__ == '__main__':
-
     # gpu_options = tf.compat.v1.GPUOptions(per_process_gpu_memory_fraction=0.7)
     # config = tf.compat.v1.ConfigProto(gpu_options=gpu_options)
     # session = tf.compat.v1.Session(config=config)
