@@ -4,7 +4,6 @@ from tensorflow import keras
 from test_process import *
 from attack import *
 from load_data import *
-from defend import *
 import math
 import codecs
 import csv

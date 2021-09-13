@@ -2,7 +2,6 @@ from tensorflow import keras
 from test_process import *
 from attack import *
 from load_data import *
-from defend import *
 from encoding import *
 from decoding import *
 from draw_picture import *

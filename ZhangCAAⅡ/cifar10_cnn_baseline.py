@@ -2,7 +2,6 @@ from tensorflow import keras
 from test_process import *
 from attack import *
 from load_data import *
-from defend import *
 
 
 def cifar10_cnn_baseline_trian(conv_net, fc_net, optimizer):

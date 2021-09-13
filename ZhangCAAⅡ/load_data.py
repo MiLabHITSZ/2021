@@ -1,7 +1,6 @@
 import tensorflow as tf
 from tensorflow.keras import datasets
 from attack import *
-from defend import *
 import numpy as np
 
 

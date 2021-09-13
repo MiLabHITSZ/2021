@@ -1,7 +1,6 @@
 from tensorflow import keras
 from test_process import *
 from attack import *
-from defend import *
 from tensorflow.keras import datasets
 from encoding import *
 from load_data import *
